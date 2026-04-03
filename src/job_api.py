@@ -1,25 +1,36 @@
 # src/job_api.py
-# Dummy job data (Apify removed)
 
 def fetch_linkedin_jobs(search_query, rows=60):
     return [
         {
             "title": "Junior AI Engineer",
-            "company": "TechCorp",
-            "location": "India",
-            "applyLink": "https://example.com"
+            "companyName": "TechCorp Solutions",
+            "location": "India (Remote)",
+            "link": "https://linkedin.com/jobs/view/12345"
         },
         {
-            "title": "Python Developer",
-            "company": "StartupX",
+            "title": "Machine Learning Engineer",
+            "companyName": "Innova AI",
+            "location": "Bangalore, KA",
+            "link": "https://linkedin.com/jobs/view/23456"
+        },
+        {
+            "title": "Python Developer (GenAI)",
+            "companyName": "Future Systems",
+            "location": "Hyderabad, TS",
+            "link": "https://linkedin.com/jobs/view/34567"
+        },
+        {
+            "title": "Data Scientist",
+            "companyName": "DataMinds",
             "location": "Remote",
-            "applyLink": "https://example.com"
+            "link": "https://linkedin.com/jobs/view/45678"
         },
         {
-            "title": "Data Analyst",
-            "company": "AnalyticsHub",
-            "location": "Bangalore",
-            "applyLink": "https://example.com"
+            "title": "Backend Developer (FastAPI)",
+            "companyName": "CloudScale",
+            "location": "Mumbai, MH",
+            "link": "https://linkedin.com/jobs/view/56789"
         }
     ]
 
@@ -27,16 +38,22 @@ def fetch_linkedin_jobs(search_query, rows=60):
 def fetch_naukri_jobs(search_query, rows=60):
     return [
         {
-            "title": "Machine Learning Intern",
-            "company": "AI Labs",
-            "location": "India",
-            "applyLink": "https://example.com"
+            "title": "AI & ML Intern",
+            "companyName": "DeepLearning Labs",
+            "location": "Pune, MH",
+            "url": "https://naukri.com/job/view/98765"
         },
         {
-            "title": "Software Engineer (Python)",
-            "company": "GlobalTech",
-            "location": "Hybrid",
-            "applyLink": "https://example.com"
+            "title": "Research Assistant (AI)",
+            "companyName": "University AI Lab",
+            "location": "India (Hybrid)",
+            "url": "https://naukri.com/job/view/87654"
+        },
+        {
+            "title": "Software Engineer (NLP)",
+            "companyName": "Syntax AI",
+            "location": "Chennai, TN",
+            "url": "https://naukri.com/job/view/76543"
         }
     ]
 
