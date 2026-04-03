@@ -1,0 +1,11 @@
+{
+  "name": "skillmatch-ai",
+  "version": "1.0.0",
+  "description": "Premium Career Growth Platform",
+  "scripts": {
+    "start": ".\\venv\\Scripts\\python.exe -m streamlit run app.py",
+    "dev": ".\\venv\\Scripts\\python.exe -m streamlit run app.py"
+  },
+  "author": "SkillMatch Team",
+  "license": "MIT"
+}
