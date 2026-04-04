@@ -1,276 +1,647 @@
 import streamlit as st
-from src.helper import extract_text_from_pdf, ask_openai
-from src.job_api import fetch_linkedin_jobs, fetch_naukri_jobs
-import base64
+import os
+from dotenv import load_dotenv
+from src.helper import extract_text_from_pdf, analyze_resume, generate_skill_gap, generate_roadmap
+from src.job_api import fetch_jobs
+from src.ats_scorer import score_ats
+from src.salary_estimator import estimate_salary
+from src.resume_rewriter import rewrite_resume
+from src.interview_prep import generate_interview_questions, generate_star_answer, generate_company_briefing
+from src.doc_generator import generate_cover_letter, generate_resume_pdf, generate_thankyou_email
+from src.career_simulation import simulate_career_path
+from src.application_tracker import render_tracker
+from src.skill_dashboard import render_skill_dashboard
 
-# --- Page Configuration ---
-st.set_page_config(
-    page_title="SkillMatch AI | Your Career Growth Partner",
-    page_icon="🚀",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+load_dotenv()
 
-# --- Custom CSS for Premium Look ---
+st.set_page_config(page_title="SkillMatch AI", page_icon="🚀", layout="wide", initial_sidebar_state="expanded")
+
 st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-    
-    html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
-    }
-    
-    .stApp {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        color: #f8fafc;
-    }
-    
-    .main-header {
-        font-size: 3rem;
-        font-weight: 800;
-        background: linear-gradient(to right, #60a5fa, #a78bfa);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 1rem;
-    }
-    
-    .card {
-        background: rgba(30, 41, 59, 0.7);
-        padding: 24px;
-        border-radius: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(12px);
-        margin-bottom: 20px;
-        transition: transform 0.2s ease, border-color 0.2s ease;
-    }
-    
-    .card:hover {
-        transform: translateY(-5px);
-        border-color: rgba(96, 165, 250, 0.5);
-    }
-    
-    .job-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #60a5fa;
-        margin-bottom: 8px;
-    }
-    
-    .company-name {
-        font-size: 1rem;
-        color: #94a3b8;
-        margin-bottom: 12px;
-    }
-    
-    .tag {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        background: rgba(96, 165, 250, 0.2);
-        color: #60a5fa;
-        margin-right: 8px;
-    }
-    
-    .highlight-box {
-        padding: 20px;
-        background: rgba(255, 255, 255, 0.03);
-        border-left: 4px solid #60a5fa;
-        border-radius: 8px;
-        margin: 15px 0;
-    }
-    
-    /* Sidebar styling */
-    [data-testid="stSidebar"] {
-        background-color: #0f172a;
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .stButton>button {
-        background: linear-gradient(to right, #3b82f6, #8b5cf6);
-        color: white;
-        border: none;
-        font-weight: 600;
-        padding: 10px 24px;
-        border-radius: 8px;
-        width: 100%;
-    }
-    
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 24px;
-        background-color: transparent;
-    }
-    
-    .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        background-color: transparent !important;
-        border-radius: 4px 4px 0px 0px;
-        gap: 4px;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        color: #94a3b8;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        color: #60a5fa !important;
-        border-bottom-color: #60a5fa !important;
-    }
-    </style>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+* { font-family: 'Inter', sans-serif !important; box-sizing: border-box; }
+
+.stApp { background: #0d0d14 !important; }
+
+/* ── Sidebar ── */
+[data-testid="stSidebar"] {
+    background: #0a0a10 !important;
+    border-right: 1px solid #1e1e2e !important;
+}
+[data-testid="stSidebar"] * { color: #c0c0d0 !important; }
+[data-testid="stSidebarNav"] { display: none !important; }
+
+/* Sidebar radio */
+[data-testid="stSidebar"] .stRadio label {
+    background: transparent !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    margin: 1px 0 !important;
+    font-size: 0.85rem !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    transition: background 0.15s !important;
+}
+[data-testid="stSidebar"] .stRadio label:hover {
+    background: rgba(108,99,255,0.12) !important;
+    color: #fff !important;
+}
+[data-testid="stSidebar"] .stRadio [data-baseweb="radio"] { display: none !important; }
+
+/* ── Main content ── */
+.block-container { padding: 2rem 2.5rem !important; max-width: 1400px; }
+
+/* ── Cards ── */
+.sm-card {
+    background: #13131f;
+    border: 1px solid #1e1e30;
+    border-radius: 14px;
+    padding: 22px;
+    margin: 8px 0;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.sm-card:hover { border-color: #6c63ff; box-shadow: 0 0 24px rgba(108,99,255,0.12); }
+
+/* ── Metric boxes ── */
+.sm-metric {
+    background: #13131f;
+    border: 1px solid #1e1e30;
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+}
+.sm-metric-val { font-size: 2rem; font-weight: 700; color: #6c63ff; line-height: 1.1; }
+.sm-metric-label { font-size: 0.7rem; color: #666688; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+/* ── Badges ── */
+.sm-badge {
+    display: inline-block;
+    background: rgba(108,99,255,0.12);
+    border: 1px solid rgba(108,99,255,0.25);
+    border-radius: 20px;
+    padding: 3px 11px;
+    font-size: 0.75rem;
+    color: #a89fff;
+    margin: 2px;
+}
+
+/* ── Section titles ── */
+.sm-page-title { font-size: 1.6rem; font-weight: 700; color: #f0f0f8; margin-bottom: 4px; }
+.sm-page-sub { font-size: 0.85rem; color: #666688; margin-bottom: 22px; }
+
+/* ── Output box ── */
+.sm-output {
+    background: #0a0a10;
+    border: 1px solid #1e1e30;
+    border-radius: 10px;
+    padding: 18px;
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 0.82rem;
+    color: #c0c0d8;
+    white-space: pre-wrap;
+    max-height: 380px;
+    overflow-y: auto;
+    line-height: 1.6;
+}
+
+/* ── STAR step ── */
+.sm-star {
+    background: #13131f;
+    border-left: 3px solid #6c63ff;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 8px 0;
+}
+
+/* ── Score ring ── */
+.sm-score-wrap { text-align: center; padding: 20px; }
+.sm-score-num { font-size: 3.5rem; font-weight: 700; line-height: 1; }
+.sm-score-lbl { font-size: 0.72rem; color: #666688; text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; }
+
+/* ── Job card ── */
+.sm-job {
+    background: #13131f;
+    border: 1px solid #1e1e30;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin: 10px 0;
+    transition: border-color 0.2s;
+}
+.sm-job:hover { border-color: #6c63ff; }
+
+/* ── Buttons ── */
+.stButton > button {
+    background: linear-gradient(135deg, #6c63ff, #8b5cf6) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 9px !important;
+    font-weight: 600 !important;
+    padding: 9px 22px !important;
+    transition: opacity 0.2s, transform 0.2s !important;
+    font-size: 0.88rem !important;
+}
+.stButton > button:hover { opacity: 0.88 !important; transform: translateY(-1px) !important; }
+
+/* ── Inputs ── */
+.stTextInput input, .stTextArea textarea, .stSelectbox select {
+    background: #13131f !important;
+    border: 1px solid #2a2a3e !important;
+    border-radius: 9px !important;
+    color: #e0e0f0 !important;
+    font-size: 0.88rem !important;
+}
+.stTextInput input:focus, .stTextArea textarea:focus {
+    border-color: #6c63ff !important;
+    box-shadow: 0 0 0 2px rgba(108,99,255,0.15) !important;
+}
+
+/* ── Tabs ── */
+.stTabs [data-baseweb="tab-list"] { background: transparent !important; border-bottom: 1px solid #1e1e30 !important; }
+.stTabs [data-baseweb="tab"] { color: #666688 !important; font-size: 0.88rem !important; font-weight: 500 !important; }
+.stTabs [aria-selected="true"] { color: #6c63ff !important; border-bottom-color: #6c63ff !important; }
+
+/* ── Dividers ── */
+hr { border-color: #1e1e30 !important; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #0d0d14; }
+::-webkit-scrollbar-thumb { background: #2a2a4a; border-radius: 3px; }
+
+/* ── Success / info ── */
+.stSuccess { background: rgba(67,233,123,0.08) !important; border-color: rgba(67,233,123,0.2) !important; }
+.stSpinner { color: #6c63ff !important; }
+
+/* ── Hide Streamlit chrome ── */
+#MainMenu, footer, header { visibility: hidden !important; }
+
+/* ── Gradient text helper ── */
+.grad { background: linear-gradient(135deg,#6c63ff,#ff6584,#43e97b); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+</style>
 """, unsafe_allow_html=True)
 
-# --- App Content ---
-st.markdown('<h1 class="main-header">SkillMatch AI</h1>', unsafe_allow_html=True)
-st.markdown("### Elevate your career with AI-driven insights and opportunities.")
+# ── Session state ──────────────────────────────────────────────────────────────
+for k, v in [("resume_text",""),("resume_data",{}),("jobs",[]),("applications",[])]:
+    if k not in st.session_state: st.session_state[k] = v
 
-# --- Sidebar ---
+# ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.image("https://img.icons8.com/clouds/200/rocket.png", width=150)
-    st.title("Settings & Prefs")
-    
-    st.markdown("---")
-    job_location = st.selectbox("Target Location", ["Global", "India", "Remote", "USA", "Europe"])
-    job_type = st.multiselect("Job Type", ["Full-time", "Internship", "Contract"], default=["Full-time"])
-    num_results = st.slider("Results to fetch", 5, 50, 15)
-    
-    st.markdown("---")
-    st.info("Upload your resume to unlock all features.")
+    st.markdown("""
+    <div style="padding:20px 4px 16px 4px; border-bottom:1px solid #1e1e2e; margin-bottom:10px;">
+        <div style="font-size:2rem;">🚀</div>
+        <div style="font-size:1.05rem; font-weight:700; color:#f0f0f8; margin-top:6px;">SkillMatch AI</div>
+        <div style="font-size:0.72rem; color:#6c63ff; margin-top:2px; letter-spacing:.5px;">Premium Career Platform</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-# --- File Upload ---
-uploaded_file = st.file_uploader("Drop your resume here (PDF format)", type=["pdf"])
+    page = st.radio("", [
+        "🏠  Dashboard",
+        "📑  Resume Analyzer",
+        "🎯  ATS Score Checker",
+        "💰  Salary Estimator",
+        "✍️  Resume Rewriter",
+        "💼  Job Matcher",
+        "🎤  Interview Prep",
+        "📄  Document Generator",
+        "🔮  5-Year Career Sim",
+        "📊  Application Tracker",
+        "📈  Skill Dashboard",
+    ], label_visibility="collapsed")
 
-if uploaded_file:
-    # Use session state to store analysis results and avoid re-runs
-    if 'analysis_done' not in st.session_state:
-        with st.spinner("🚀 Analyzing your professional profile..."):
-            resume_text = extract_text_from_pdf(uploaded_file)
-            
-            # Heavy lifting with local T5
-            st.session_state.resume_text = resume_text
-            st.session_state.summary = ask_openai(f"Summarize this resume highlighting the skills, education, and experience:\n\n{resume_text}")
-            st.session_state.gaps = ask_openai(f"Analyze this resume and highlight missing skills, certifications, and experiences needed: \n\n{resume_text}")
-            st.session_state.roadmap = ask_openai(f"Suggest a future roadmap to improve this person's career prospects (Skills, certifications): \n\n{resume_text}")
-            
-            # Extract keywords for jobs
-            st.session_state.keywords = ask_openai(f"Suggest 5 best job titles or keywords based on this: {st.session_state.summary}. Output as comma separated list only.")
-            
-            st.session_state.analysis_done = True
-            st.success("✅ Analysis Ready!")
+    st.markdown("<div style='border-top:1px solid #1e1e2e; margin:14px 0;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='font-size:0.72rem; color:#444460; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;'>Upload Resume</div>", unsafe_allow_html=True)
 
-    # --- Main Dashboard Tabs ---
-    tab1, tab2, tab3, tab4 = st.tabs(["📊 Insights", "💼 Job Matcher", "🚀 Career Coach", "🎤 Prep Kit"])
+    uploaded = st.file_uploader("PDF", type=["pdf"], label_visibility="collapsed")
+    if uploaded:
+        with st.spinner("Reading resume..."):
+            text = extract_text_from_pdf(uploaded)
+            st.session_state.resume_text = text
+            st.session_state.resume_data = analyze_resume(text)
+        st.success("✅ Loaded!")
+
+    if st.session_state.resume_text:
+        w = len(st.session_state.resume_text.split())
+        st.markdown(f"""<div style="margin-top:10px; padding:10px 12px; background:rgba(67,233,123,0.07);
+            border:1px solid rgba(67,233,123,0.18); border-radius:9px;">
+            <span style="font-size:0.7rem; color:#43e97b; font-weight:600;">● ACTIVE</span>
+            <div style="font-size:0.75rem; color:#666688; margin-top:2px;">{w} words</div>
+        </div>""", unsafe_allow_html=True)
+
+# strip double spaces from page name
+page = page.replace("  ", " ").strip()
+
+# ══════════════════════════════════════════════════════════════════════════════
+# DASHBOARD
+# ══════════════════════════════════════════════════════════════════════════════
+if page == "🏠 Dashboard":
+    st.markdown("""
+    <div style="padding: 10px 0 30px 0;">
+        <div style="font-size:2.8rem; font-weight:800; line-height:1.15; color:#f0f0f8;">
+            Your Career,<br>
+            <span class="grad">Supercharged by AI.</span>
+        </div>
+        <div style="font-size:1rem; color:#666688; margin-top:12px;">
+            Upload your resume and unlock your complete career intelligence suite.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    c1,c2,c3,c4 = st.columns(4)
+    for col, val, lbl, clr in [
+        (c1,"11","AI Features","#6c63ff"),
+        (c2,str(len(st.session_state.applications)),"Jobs Tracked","#43e97b"),
+        (c3,"✅" if st.session_state.resume_text else "○","Resume","#ff6584"),
+        (c4,"FLAN-T5","AI Engine","#ffb347"),
+    ]:
+        with col:
+            st.markdown(f"""<div class="sm-metric">
+                <div class="sm-metric-val" style="color:{clr}; font-size:1.6rem;">{val}</div>
+                <div class="sm-metric-label">{lbl}</div>
+            </div>""", unsafe_allow_html=True)
+
+    st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
+
+    features = [
+        ("📑","Resume Analyzer","AI extracts skills, experience & achievements"),
+        ("🎯","ATS Score Checker","See how your resume ranks against job descriptions"),
+        ("💰","Salary Estimator","Predict your market salary by role & location"),
+        ("✍️","Resume Rewriter","AI rewrites bullets for maximum impact"),
+        ("🎤","Interview Prep","Mock questions, STAR answers & company briefings"),
+        ("📄","Document Generator","Cover letters, thank-you emails & PDF resume"),
+        ("🔮","5-Year Career Sim","Simulate two career paths side by side"),
+        ("📊","Application Tracker","Kanban board for all your job applications"),
+        ("📈","Skill Dashboard","Visual breakdown of your skill landscape"),
+    ]
+    cols = st.columns(3)
+    for i,(icon,title,desc) in enumerate(features):
+        with cols[i%3]:
+            st.markdown(f"""<div class="sm-card">
+                <div style="font-size:1.6rem; margin-bottom:10px;">{icon}</div>
+                <div style="font-weight:600; font-size:0.95rem; color:#e0e0f0; margin-bottom:5px;">{title}</div>
+                <div style="font-size:0.8rem; color:#555570;">{desc}</div>
+            </div>""", unsafe_allow_html=True)
+
+    if not st.session_state.resume_text:
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.info("👈 Upload your resume from the sidebar to get started!")
+
+# ══════════════════════════════════════════════════════════════════════════════
+# RESUME ANALYZER
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "📑 Resume Analyzer":
+    st.markdown('<div class="sm-page-title">📑 Resume Analyzer</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sm-page-sub">Deep AI extraction of your professional profile</div>', unsafe_allow_html=True)
+
+    if not st.session_state.resume_text:
+        st.warning("⬅️ Please upload your resume from the sidebar first.")
+    else:
+        data = st.session_state.resume_data
+        tab1, tab2, tab3 = st.tabs(["👤 Profile", "🔍 Skill Gap", "🗺️ Roadmap"])
+
+        with tab1:
+            c1,c2 = st.columns([3,1])
+            with c1:
+                st.markdown(f"""<div class="sm-card">
+                    <div style="font-size:1.1rem; font-weight:700; color:#e0e0f0; margin-bottom:8px;">
+                        👤 {data.get('name','Your Profile')}
+                    </div>
+                    <div style="font-size:0.88rem; color:#999ab8; line-height:1.6;">
+                        {data.get('summary','AI analysis complete. View skills below.')}
+                    </div>
+                    <div style="margin-top:14px;">
+                        {"".join([f'<span class="sm-badge">{s}</span>' for s in data.get('skills',[])])}
+                    </div>
+                </div>""", unsafe_allow_html=True)
+            with c2:
+                st.markdown(f"""
+                <div class="sm-metric" style="margin-bottom:10px;">
+                    <div class="sm-metric-val">{data.get('years_experience','?')}</div>
+                    <div class="sm-metric-label">Years Exp.</div>
+                </div>
+                <div class="sm-metric">
+                    <div class="sm-metric-val" style="color:#43e97b;">{len(data.get('skills',[]))}</div>
+                    <div class="sm-metric-label">Skills Found</div>
+                </div>""", unsafe_allow_html=True)
+
+        with tab2:
+            role = st.text_input("🎯 Target Role", placeholder="e.g. Senior Data Scientist")
+            if st.button("Analyze Gap", use_container_width=True) and role:
+                with st.spinner("Analyzing skill gaps..."):
+                    gap = generate_skill_gap(st.session_state.resume_text, role)
+                st.markdown(f'<div class="sm-output">{gap}</div>', unsafe_allow_html=True)
+
+        with tab3:
+            goal = st.text_input("🏆 Career Goal", placeholder="e.g. Become ML Engineer at FAANG")
+            if st.button("Build Roadmap", use_container_width=True) and goal:
+                with st.spinner("Building roadmap..."):
+                    roadmap = generate_roadmap(st.session_state.resume_text, goal)
+                st.markdown(f'<div class="sm-output">{roadmap}</div>', unsafe_allow_html=True)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ATS SCORE
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "🎯 ATS Score Checker":
+    st.markdown('<div class="sm-page-title">🎯 ATS Score Checker</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sm-page-sub">See exactly how your resume performs against ATS systems</div>', unsafe_allow_html=True)
+
+    if not st.session_state.resume_text:
+        st.warning("⬅️ Please upload your resume from the sidebar first.")
+    else:
+        jd = st.text_area("📋 Paste Job Description", height=200, placeholder="Paste the full job description here...")
+        if st.button("🔍 Analyze ATS Score", use_container_width=True) and jd:
+            with st.spinner("Running ATS analysis..."):
+                result = score_ats(st.session_state.resume_text, jd)
+
+            score = result.get("score", 0)
+            clr = "#43e97b" if score>=70 else "#ffb347" if score>=50 else "#ff6584"
+            lbl = "Excellent ✅" if score>=70 else "Needs Work ⚠️" if score>=50 else "Critical ❌"
+
+            c1,c2 = st.columns([1,2])
+            with c1:
+                st.markdown(f"""<div class="sm-card" style="text-align:center; padding:30px 20px;">
+                    <div style="font-size:0.72rem; color:#444460; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">ATS Score</div>
+                    <div style="font-size:4rem; font-weight:800; color:{clr}; line-height:1;">{score}%</div>
+                    <div style="font-size:0.85rem; color:{clr}; margin-top:8px;">{lbl}</div>
+                    <div style="margin-top:16px; height:6px; background:#1e1e30; border-radius:3px;">
+                        <div style="width:{score}%; height:100%; background:{clr}; border-radius:3px; transition:width .5s;"></div>
+                    </div>
+                </div>""", unsafe_allow_html=True)
+            with c2:
+                st.markdown(f"""<div class="sm-card" style="height:100%;">
+                    <div style="font-weight:600; color:#e0e0f0; margin-bottom:12px;">📊 Breakdown</div>
+                    <div style="font-size:0.85rem; color:#999ab8; white-space:pre-wrap; line-height:1.7;">{result.get('breakdown','')}</div>
+                </div>""", unsafe_allow_html=True)
+
+            st.markdown(f"""<div class="sm-card" style="margin-top:4px;">
+                <div style="font-weight:600; color:#e0e0f0; margin-bottom:10px;">💡 Recommendations</div>
+                <div style="font-size:0.85rem; color:#999ab8; white-space:pre-wrap; line-height:1.7;">{result.get('recommendations','')}</div>
+            </div>""", unsafe_allow_html=True)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SALARY ESTIMATOR
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "💰 Salary Estimator":
+    st.markdown('<div class="sm-page-title">💰 Salary Estimator</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sm-page-sub">Predict your market salary based on role, location & experience</div>', unsafe_allow_html=True)
+
+    c1,c2,c3 = st.columns(3)
+    with c1: role = st.text_input("💼 Target Role", placeholder="e.g. Data Scientist")
+    with c2: location = st.text_input("📍 Location", placeholder="e.g. Bangalore")
+    with c3: exp = st.number_input("📅 Years of Experience", 0, 40, 3)
+
+    if st.button("💰 Estimate My Salary", use_container_width=True) and role:
+        with st.spinner("Calculating..."):
+            result = estimate_salary(st.session_state.resume_text, role, location, exp)
+
+        c1,c2,c3 = st.columns(3)
+        for col, lbl, key, clr in [
+            (c1,"Minimum",   "min",    "#ff6584"),
+            (c2,"Expected",  "median", "#43e97b"),
+            (c3,"Maximum",   "max",    "#6c63ff"),
+        ]:
+            with col:
+                st.markdown(f"""<div class="sm-metric">
+                    <div class="sm-metric-val" style="color:{clr}; font-size:1.8rem;">{result.get(key,'?')}</div>
+                    <div class="sm-metric-label">{lbl}</div>
+                </div>""", unsafe_allow_html=True)
+
+        st.markdown(f"""<div class="sm-card" style="margin-top:16px;">
+            <div style="font-weight:600; color:#e0e0f0; margin-bottom:10px;">📊 Market Insights</div>
+            <div style="font-size:0.85rem; color:#999ab8; white-space:pre-wrap; line-height:1.7;">{result.get('insights','')}</div>
+        </div>""", unsafe_allow_html=True)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# RESUME REWRITER
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "✍️ Resume Rewriter":
+    st.markdown('<div class="sm-page-title">✍️ Resume Rewriter</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sm-page-sub">AI rewrites your resume bullets for maximum impact</div>', unsafe_allow_html=True)
+
+    if not st.session_state.resume_text:
+        st.warning("⬅️ Please upload your resume from the sidebar first.")
+    else:
+        c1,c2 = st.columns(2)
+        with c1: target = st.text_input("🎯 Target Role (optional)", placeholder="e.g. Product Manager")
+        with c2: focus = st.selectbox("🔧 Rewrite Focus", ["Impact & Metrics","Leadership & Ownership","Technical Depth","ATS Keyword Optimization","Executive Level"])
+
+        if st.button("✨ Rewrite My Resume", use_container_width=True):
+            with st.spinner("Rewriting for maximum impact..."):
+                rewritten = rewrite_resume(st.session_state.resume_text, target, focus)
+
+            c1,c2 = st.columns(2)
+            with c1:
+                st.markdown('<div style="font-weight:600; color:#666688; margin-bottom:8px;">📄 Original</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="sm-output">{st.session_state.resume_text[:2000]}</div>', unsafe_allow_html=True)
+            with c2:
+                st.markdown('<div style="font-weight:600; color:#6c63ff; margin-bottom:8px;">✨ AI Rewritten</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="sm-output">{rewritten}</div>', unsafe_allow_html=True)
+            st.download_button("⬇️ Download Rewritten Resume", rewritten, file_name="rewritten_resume.txt", use_container_width=True)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# JOB MATCHER
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "💼 Job Matcher":
+    st.markdown('<div class="sm-page-title">💼 Smart Job Matcher</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sm-page-sub">AI-matched job listings tailored to your profile</div>', unsafe_allow_html=True)
+
+    if not st.session_state.resume_text:
+        st.warning("⬅️ Please upload your resume from the sidebar first.")
+    else:
+        c1,c2 = st.columns(2)
+        with c1: role_q = st.text_input("🔍 Role", placeholder="e.g. Machine Learning Engineer")
+        with c2: loc_q  = st.text_input("📍 Location", placeholder="e.g. Bangalore / Remote")
+
+        if st.button("🔍 Find Jobs", use_container_width=True):
+            with st.spinner("Searching..."):
+                st.session_state.jobs = fetch_jobs(role_q, loc_q, st.session_state.resume_text)
+
+        for job in st.session_state.jobs:
+            score = job.get('match_score',0)
+            clr = "#43e97b" if score>=80 else "#ffb347" if score>=65 else "#ff6584"
+            badges = "".join([f'<span class="sm-badge">{s}</span>' for s in job.get('required_skills',[])])
+            src_clr = "#6c63ff" if job.get('source')=="LinkedIn" else "#ff6584"
+            st.markdown(f"""<div class="sm-job">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div style="flex:1;">
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+                            <span style="font-weight:700; font-size:1rem; color:#e0e0f0;">{job.get('title','')}</span>
+                            <span style="font-size:0.7rem; color:{src_clr}; background:rgba(108,99,255,0.1); padding:2px 8px; border-radius:10px;">{job.get('source','')}</span>
+                        </div>
+                        <div style="font-size:0.82rem; color:#666688;">{job.get('company','')} &nbsp;•&nbsp; {job.get('location','')} &nbsp;•&nbsp; {job.get('posted','')}</div>
+                        <div style="font-size:0.82rem; color:#999ab8; margin-top:8px; line-height:1.5;">{job.get('description','')[:180]}</div>
+                        <div style="margin-top:10px;">{badges}</div>
+                    </div>
+                    <div style="text-align:center; min-width:80px; padding-left:16px;">
+                        <div style="font-size:1.8rem; font-weight:800; color:{clr};">{score}%</div>
+                        <div style="font-size:0.68rem; color:#444460; text-transform:uppercase; letter-spacing:.5px;">Match</div>
+                        <div style="font-size:0.78rem; color:#43e97b; margin-top:4px;">{job.get('salary_range','')}</div>
+                    </div>
+                </div>
+            </div>""", unsafe_allow_html=True)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# INTERVIEW PREP
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "🎤 Interview Prep":
+    st.markdown('<div class="sm-page-title">🎤 Interview Prep Kit</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sm-page-sub">Mock questions, STAR builder & company briefings</div>', unsafe_allow_html=True)
+
+    tab1,tab2,tab3 = st.tabs(["❓ Mock Questions","⭐ STAR Builder","🏢 Company Briefing"])
 
     with tab1:
-        st.header("Resume Intelligence")
-        col1, col2 = st.columns([2, 1])
-        
-        with col1:
-            st.markdown('<div class="highlight-box">', unsafe_allow_html=True)
-            st.subheader("📑 Professional Summary")
-            st.write(st.session_state.summary)
-            st.markdown('</div>', unsafe_allow_html=True)
-            
-            st.markdown('<div class="highlight-box">', unsafe_allow_html=True)
-            st.subheader("🛠️ Skill Analysis")
-            st.write(st.session_state.gaps)
-            st.markdown('</div>', unsafe_allow_html=True)
-            
-        with col2:
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-            st.subheader("📈 Career Roadmap")
-            st.write(st.session_state.roadmap)
-            st.markdown('</div>', unsafe_allow_html=True)
+        c1,c2 = st.columns(2)
+        with c1: iq_role = st.text_input("Target Role", placeholder="e.g. Backend Engineer", key="iq_role")
+        with c2: qtypes = st.multiselect("Question Types", ["Technical","Behavioral","Situational","Leadership"], default=["Technical","Behavioral"])
+        if st.button("Generate Questions", use_container_width=True) and iq_role:
+            with st.spinner("Generating..."):
+                questions = generate_interview_questions(st.session_state.resume_text, iq_role, qtypes)
+            for i,q in enumerate(questions,1):
+                type_clr = {"Technical":"#6c63ff","Behavioral":"#43e97b","Situational":"#ffb347","Leadership":"#ff6584"}.get(q.get('type',''),"#6c63ff")
+                st.markdown(f"""<div class="sm-card" style="margin:8px 0;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                        <span style="font-size:0.7rem; color:{type_clr}; font-weight:600; text-transform:uppercase;">Q{i} · {q.get('type','')}</span>
+                    </div>
+                    <div style="font-weight:600; color:#e0e0f0; font-size:0.92rem; margin-bottom:8px;">{q.get('question','')}</div>
+                    <div style="font-size:0.8rem; color:#555570;">💡 {q.get('tip','')}</div>
+                </div>""", unsafe_allow_html=True)
 
     with tab2:
-        st.header("Top Career Matches")
-        search_keywords = st.session_state.keywords.replace("\n", "").strip()
-        
-        if st.button("🔄 Refresh Recommendations"):
-            with st.spinner("Scanning LinkedIn & Naukri..."):
-                st.session_state.links = fetch_linkedin_jobs(search_keywords, rows=num_results)
-                st.session_state.naukri = fetch_naukri_jobs(search_keywords, rows=num_results)
-        
-        if 'links' in st.session_state:
-            st.subheader(f"Recommendations for: `{search_keywords}`")
-            
-            # Display LinkedIn Jobs
-            st.markdown("#### 🔹 LinkedIn Opportunities")
-            l_cols = st.columns(3)
-            for i, job in enumerate(st.session_state.links):
-                with l_cols[i % 3]:
-                    st.markdown(f"""
-                        <div class="card">
-                            <div class="job-title">{job.get('title')}</div>
-                            <div class="company-name">{job.get('companyName')}</div>
-                            <div class="tag">📍 {job.get('location')}</div>
-                            <div style='margin-top:15px'>
-                                <a href="{job.get('link')}" target="_blank" style="text-decoration:none; color:#60a5fa; font-weight:bold;">View Listing →</a>
-                            </div>
-                        </div>
-                    """, unsafe_allow_html=True)
-            
-            # Display Naukri Jobs
-            st.markdown("#### 🔹 Naukri Jobs (India)")
-            n_cols = st.columns(3)
-            for i, job in enumerate(st.session_state.naukri):
-                with n_cols[i % 3]:
-                    st.markdown(f"""
-                        <div class="card">
-                            <div class="job-title">{job.get('title')}</div>
-                            <div class="company-name">{job.get('companyName')}</div>
-                            <div class="tag">📍 {job.get('location')}</div>
-                            <div style='margin-top:15px'>
-                                <a href="{job.get('url')}" target="_blank" style="text-decoration:none; color:#a78bfa; font-weight:bold;">Apply Now →</a>
-                            </div>
-                        </div>
-                    """, unsafe_allow_html=True)
+        situation = st.text_area("Describe a work situation", placeholder="e.g. Led a team to deliver a critical project under tight deadline...", height=120)
+        target_q  = st.text_input("Interview question to answer", placeholder="e.g. Tell me about a time you showed leadership")
+        if st.button("Build STAR Answer", use_container_width=True) and situation:
+            with st.spinner("Structuring..."):
+                star = generate_star_answer(situation, target_q)
+            for lbl, key, clr in [("📍 Situation","situation","#6c63ff"),("🎯 Task","task","#ff6584"),("⚡ Action","action","#43e97b"),("🏆 Result","result","#ffb347")]:
+                st.markdown(f"""<div class="sm-star">
+                    <div style="font-weight:700; color:{clr}; font-size:0.82rem; margin-bottom:6px;">{lbl}</div>
+                    <div style="font-size:0.88rem; color:#c0c0d8; line-height:1.6;">{star.get(key,'')}</div>
+                </div>""", unsafe_allow_html=True)
 
     with tab3:
-        st.header("AI Career Coach")
-        coach_opt = st.radio("Choose a tool", ["LinkedIn Optimizer", "Tailored Cover Letter"], horizontal=True)
-        
-        if coach_opt == "LinkedIn Optimizer":
-            if st.button("Generate Optimization Suggestions"):
-                with st.spinner("Analyzing LinkedIn standards..."):
-                    opt_tips = ask_openai(f"Suggest 3 improvements for a LinkedIn profile based on this resume: {st.session_state.resume_text}")
-                    st.markdown('<div class="highlight-box">', unsafe_allow_html=True)
-                    st.subheader("💡 Strategic LinkedIn Improvements")
-                    st.write(opt_tips)
-                    st.markdown('</div>', unsafe_allow_html=True)
-        else:
-            if st.button("Generate Cover Letter"):
-                with st.spinner("Drafting your personalized letter..."):
-                    letter = ask_openai(f"Write a short, professional cover letter for a {search_keywords} role based on this resume: {st.session_state.resume_text}")
-                    st.markdown('<div class="highlight-box">', unsafe_allow_html=True)
-                    st.subheader("📄 Your Draft Cover Letter")
-                    st.text_area("", value=letter, height=300)
-                    st.markdown('</div>', unsafe_allow_html=True)
+        c1,c2 = st.columns(2)
+        with c1: company = st.text_input("Company", placeholder="e.g. Google, Infosys, Zomato")
+        with c2: c_role  = st.text_input("Applying for", placeholder="e.g. Software Engineer")
+        if st.button("Generate Briefing", use_container_width=True) and company:
+            with st.spinner("Researching..."):
+                briefing = generate_company_briefing(company, c_role)
+            st.markdown(f"""<div class="sm-card">
+                <div style="font-weight:700; font-size:1rem; color:#e0e0f0; margin-bottom:12px;">🏢 {company} — Interview Briefing</div>
+                <div style="font-size:0.85rem; color:#999ab8; white-space:pre-wrap; line-height:1.7;">{briefing}</div>
+            </div>""", unsafe_allow_html=True)
 
-    with tab4:
-        st.header("Interview Readiness")
-        st.write("Prepare for your next big interview with AI-generated questions.")
-        
-        if st.button("Generate Mock Questions"):
-            with st.spinner("Predicting interviewer logic..."):
-                questions = ask_openai(f"Generate 5 likely interview questions for a {search_keywords} role based on this resume: {st.session_state.resume_text}")
-                st.markdown('<div class="highlight-box">', unsafe_allow_html=True)
-                st.subheader("❓ Likely Interview Questions")
-                st.write(questions)
-                st.markdown('</div>', unsafe_allow_html=True)
-                st.info("💡 Tip: Use the STAR (Situation, Task, Action, Result) method to answer these!")
+# ══════════════════════════════════════════════════════════════════════════════
+# DOCUMENT GENERATOR
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "📄 Document Generator":
+    st.markdown('<div class="sm-page-title">📄 Document Generator</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sm-page-sub">Generate polished career documents in seconds</div>', unsafe_allow_html=True)
 
-else:
-    # Catchy landing state
-    st.markdown("---")
-    st.warning("👈 Please upload your resume to get started.")
-    
-    # Feature highlights
-    fcol1, fcol2, fcol3 = st.columns(3)
-    with fcol1:
-        st.markdown('<div class="card"><h3>🔍 Smart Matching</h3><p>Find the best jobs on LinkedIn & Naukri tailored to your skills.</p></div>', unsafe_allow_html=True)
-    with fcol2:
-        st.markdown('<div class="card"><h3>✨ AI Enhancements</h3><p>Optimize your LinkedIn profile and generate cover letters instantly.</p></div>', unsafe_allow_html=True)
-    with fcol3:
-        st.markdown('<div class="card"><h3>🏆 Interview Prep</h3><p>Practice with questions generated specifically from your experience.</p></div>', unsafe_allow_html=True)
+    tab1,tab2,tab3 = st.tabs(["📝 Cover Letter","📧 Thank You Email","📄 PDF Resume"])
 
+    with tab1:
+        c1,c2 = st.columns(2)
+        with c1:
+            cl_co   = st.text_input("Company", placeholder="e.g. Amazon")
+            cl_role = st.text_input("Role", placeholder="e.g. Data Engineer")
+        with c2:
+            cl_tone = st.selectbox("Tone", ["Professional","Enthusiastic","Concise","Creative"])
+            cl_highlight = st.text_input("Key achievement", placeholder="e.g. Built ML pipeline saving $2M")
+        if st.button("✨ Generate Cover Letter", use_container_width=True):
+            if not st.session_state.resume_text: st.warning("Upload resume first!")
+            else:
+                with st.spinner("Writing..."):
+                    letter = generate_cover_letter(st.session_state.resume_text, cl_co, cl_role, cl_tone, cl_highlight)
+                st.markdown(f'<div class="sm-output">{letter}</div>', unsafe_allow_html=True)
+                st.download_button("⬇️ Download", letter, file_name="cover_letter.txt", use_container_width=True)
 
+    with tab2:
+        c1,c2 = st.columns(2)
+        with c1:
+            ty_name = st.text_input("Interviewer Name", placeholder="e.g. Rahul Sharma")
+            ty_co   = st.text_input("Company", placeholder="e.g. Flipkart", key="ty_co")
+        with c2:
+            ty_role  = st.text_input("Role", placeholder="e.g. Product Manager", key="ty_role")
+            ty_topic = st.text_input("Topic discussed", placeholder="e.g. AI strategy for 2025")
+        if st.button("✉️ Generate Email", use_container_width=True):
+            with st.spinner("Writing..."):
+                email = generate_thankyou_email(ty_name, ty_co, ty_role, ty_topic)
+            st.markdown(f'<div class="sm-output">{email}</div>', unsafe_allow_html=True)
+            st.download_button("⬇️ Download", email, file_name="thankyou_email.txt", use_container_width=True)
+
+    with tab3:
+        pdf_name = st.text_input("Your Full Name", placeholder="e.g. Arjun Sharma")
+        if st.button("📄 Generate PDF Resume", use_container_width=True):
+            if not st.session_state.resume_text: st.warning("Upload resume first!")
+            else:
+                with st.spinner("Building PDF..."):
+                    pdf_bytes = generate_resume_pdf(st.session_state.resume_text, pdf_name)
+                st.download_button("⬇️ Download PDF", pdf_bytes, file_name="resume.pdf", mime="application/pdf", use_container_width=True)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 5-YEAR SIM
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "🔮 5-Year Career Sim":
+    st.markdown('<div class="sm-page-title">🔮 5-Year Career Simulation</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sm-page-sub">Simulate two career paths and see where you end up in 2030</div>', unsafe_allow_html=True)
+
+    c1,c2 = st.columns(2)
+    with c1:
+        st.markdown('<div style="font-size:0.85rem; font-weight:600; color:#6c63ff; margin-bottom:6px;">🔵 Path A</div>', unsafe_allow_html=True)
+        path_a = st.text_input("Path A", placeholder="e.g. Stay and get promoted to Senior Engineer", label_visibility="collapsed")
+    with c2:
+        st.markdown('<div style="font-size:0.85rem; font-weight:600; color:#ff6584; margin-bottom:6px;">🔴 Path B</div>', unsafe_allow_html=True)
+        path_b = st.text_input("Path B", placeholder="e.g. Join a startup as founding engineer", label_visibility="collapsed")
+
+    if st.button("🔮 Simulate Both Paths", use_container_width=True) and path_a and path_b:
+        with st.spinner("Simulating your future..."):
+            sim = simulate_career_path(st.session_state.resume_text, path_a, path_b)
+
+        c1,c2 = st.columns(2)
+        for col, key, clr, lbl in [(c1,"path_a","#6c63ff","Path A"),(c2,"path_b","#ff6584","Path B")]:
+            with col:
+                d = sim.get(key,{})
+                badges = "".join([f'<span class="sm-badge">{s}</span>' for s in d.get('skills_gained',[])])
+                st.markdown(f"""<div class="sm-card" style="border-color:rgba(108,99,255,0.2);">
+                    <div style="font-weight:700; color:{clr}; margin-bottom:16px;">🔮 {lbl} — 2030</div>
+                    <div style="margin-bottom:14px;">
+                        <div style="font-size:0.7rem; color:#444460; text-transform:uppercase; letter-spacing:1px;">Projected Salary</div>
+                        <div style="font-size:1.8rem; font-weight:800; color:{clr}; margin-top:2px;">{d.get('salary','?')}</div>
+                    </div>
+                    <div style="margin-bottom:14px;">
+                        <div style="font-size:0.7rem; color:#444460; text-transform:uppercase; letter-spacing:1px;">Likely Role</div>
+                        <div style="font-weight:600; color:#e0e0f0; margin-top:2px;">{d.get('role','?')}</div>
+                    </div>
+                    <div style="margin-bottom:14px;">
+                        <div style="font-size:0.7rem; color:#444460; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Skills Gained</div>
+                        {badges}
+                    </div>
+                    <div style="font-size:0.83rem; color:#999ab8; line-height:1.6;">{d.get('narrative','')}</div>
+                </div>""", unsafe_allow_html=True)
+
+        if sim.get("verdict"):
+            st.markdown(f"""<div class="sm-card" style="border-color:rgba(67,233,123,0.2); margin-top:4px;">
+                <div style="font-weight:700; color:#43e97b; margin-bottom:8px;">🏆 AI Verdict</div>
+                <div style="font-size:0.88rem; color:#c0c0d8; line-height:1.6;">{sim['verdict']}</div>
+            </div>""", unsafe_allow_html=True)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# APPLICATION TRACKER
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "📊 Application Tracker":
+    st.markdown('<div class="sm-page-title">📊 Application Tracker</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sm-page-sub">Kanban board for managing all your job applications</div>', unsafe_allow_html=True)
+    render_tracker()
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SKILL DASHBOARD
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "📈 Skill Dashboard":
+    st.markdown('<div class="sm-page-title">📈 Skill Dashboard</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sm-page-sub">Visual breakdown of your skill landscape & market demand</div>', unsafe_allow_html=True)
+
+    if not st.session_state.resume_text:
+        st.warning("⬅️ Please upload your resume from the sidebar first.")
+    else:
+        render_skill_dashboard(st.session_state.resume_data)
