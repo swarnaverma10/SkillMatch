@@ -10,7 +10,7 @@
 
 **A sleek, rule-based career intelligence platform that analyzes your resume, scores it against job descriptions, and matches you with real job opportunities — all without any paid API.**
 
-[🌐 Live Demo](https://skillmatch-ai-628c.onrender.com) &nbsp;·&nbsp; [📸 Screenshots](#screenshots) &nbsp;·&nbsp; [🚀 Deploy](#deployment) &nbsp;·&nbsp; [📂 Project Structure](#project-structure)
+[🌐 Live Demo](https://skillmatch-ai-628c.onrender.com) &nbsp;·&nbsp; [🚀 Deploy](#deployment) &nbsp;·&nbsp; [📂 Project Structure](#project-structure)
 
 </div>
 
@@ -42,17 +42,6 @@
 - **Match score** calculated based on your resume skills
 - Shows **salary range, location, source** (LinkedIn/Naukri/Indeed/Glassdoor)
 
----
-
-## 🖼️ Screenshots
-
-| Home Page | Resume Analyzer |
-|-----------|----------------|
-| Animated hero, upload zone, feature cards | Skill categories, profile card, metrics |
-
-| ATS Score Checker | Job Matcher |
-|-------------------|-------------|
-| Score ring, matched/missing keywords, tips | Job cards with match %, salary, company |
 
 ---
 
