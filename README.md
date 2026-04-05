@@ -10,7 +10,7 @@
 
 **A sleek, rule-based career intelligence platform that analyzes your resume, scores it against job descriptions, and matches you with real job opportunities — all without any paid API.**
 
-[🌐 Live Demo](#) &nbsp;·&nbsp; [📸 Screenshots](#screenshots) &nbsp;·&nbsp; [🚀 Deploy](#deployment) &nbsp;·&nbsp; [📂 Project Structure](#project-structure)
+[🌐 Live Demo](https://skillmatch-ai-628c.onrender.com) &nbsp;·&nbsp; [📸 Screenshots](#screenshots) &nbsp;·&nbsp; [🚀 Deploy](#deployment) &nbsp;·&nbsp; [📂 Project Structure](#project-structure)
 
 </div>
 
@@ -21,6 +21,7 @@
 ### 📑 Resume Analyzer
 - Extracts your **name, email, phone** directly from your PDF
 - Detects **20+ skill categories** — Programming, Web, AI/ML, Cloud, Databases, Tools
+- **Auto-Role Prediction**: Automatically predicts your target job role based on detected skills
 - Shows **years of experience** and **education** automatically
 - Categorized skill badges with color-coded sections
 - Raw resume text viewer for verification
@@ -37,8 +38,9 @@
   - Data Scientist, ML Engineer, Full Stack Developer
   - Software Engineer, Python Developer, Frontend Developer, DevOps Engineer
 - Jobs from **Google, Amazon, Microsoft, Flipkart, Zomato, Razorpay, Swiggy, PhonePe, CRED, Meesho, Freshworks, Zoho** and more
+- **Smart Apply Links**: Direct, pre-built links to **LinkedIn, Naukri, Indeed, and Glassdoor**
 - **Match score** calculated based on your resume skills
-- Shows **salary range, location, source** (LinkedIn/Naukri/Indeed)
+- Shows **salary range, location, source** (LinkedIn/Naukri/Indeed/Glassdoor)
 
 ---
 
@@ -63,7 +65,8 @@
 | **PDF Parsing** | pdfplumber |
 | **Charts** | Plotly |
 | **Font** | Sora (Google Fonts) |
-| **Deployment** | Streamlit Community Cloud |
+| **Font** | Sora (Google Fonts) |
+| **Deployment** | Render (Web Service) |
 
 ---
 
@@ -132,41 +135,27 @@ The app will open at `http://localhost:8501`
 
 ## 🚀 Deployment
 
-### Deploy on Streamlit Community Cloud (Free)
+### Option 1 — Deploy on Render (Recommended)
 
-**Streamlit Community Cloud** is the easiest and **completely free** way to deploy this app.
+Render is extremely stable for Streamlit apps.
 
 #### Step 1 — Push to GitHub
-```bash
-# Initialize git (if not done)
-git init
-git add .
-git commit -m "Initial commit — SkillMatch AI"
+Ensure your code is on GitHub.
 
-# Create a new repo on github.com, then:
-git remote add origin https://github.com/YOUR_USERNAME/skillmatch-ai.git
-git branch -M main
-git push -u origin main
-```
+#### Step 2 — Create Web Service on Render
+1. Go to **[dashboard.render.com](https://dashboard.render.com)**
+2. Click **"New +"** → **"Web Service"**
+3. Select this repository
+4. Set **Build Command**: `pip install -r requirements.txt`
+5. Set **Start Command**: `streamlit run app.py --server.port $PORT --server.address 0.0.0.0`
+6. Click **"Create Web Service"**
 
-#### Step 2 — Deploy on Streamlit Cloud
+### Option 2 — Deploy on Streamlit Community Cloud (Free)
+
 1. Go to **[share.streamlit.io](https://share.streamlit.io)**
-2. Sign in with your **GitHub account**
-3. Click **"New app"**
-4. Fill in the details:
-   - **Repository:** `YOUR_USERNAME/skillmatch-ai`
-   - **Branch:** `main`
-   - **Main file path:** `app.py`
-5. Click **"Deploy!"**
-
-> 🎉 Your app will be live at `https://YOUR_USERNAME-skillmatch-ai-app-XXXX.streamlit.app`
-
-#### Step 3 — (Optional) Add secrets
-Since this app needs **no API keys**, you can skip this step entirely.
-
-If you add API keys in the future:
-- Go to your app → **Settings** → **Secrets**
-- Add key-value pairs there (never put API keys in code!)
+2. Sign in with GitHub and click **"New app"**
+3. Repository: `YOUR_USERNAME/skillmatch-ai`, Main file: `app.py`
+4. Click **"Deploy!"**
 
 ---
 
