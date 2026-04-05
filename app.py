@@ -323,26 +323,40 @@ p = st.session_state.page
 if p == "home":
 
     # ── HERO ──
-    st.markdown("""
-    <div class="hero-wrap">
-        <div class="dot dot1"></div><div class="dot dot2"></div>
-        <div class="dot dot3"></div><div class="dot dot4"></div><div class="dot dot5"></div>
+    st.markdown("<div style='height:60px'></div>", unsafe_allow_html=True)
 
-        <div class="brand-pill">
-            <span class="brand-pill-icon">🚀</span>
-            <span class="brand-pill-text">SkillMatch AI &nbsp;·&nbsp; Career Intelligence Platform</span>
-        </div>
+    # Brand pill
+    st.markdown(
+        "<div style='text-align:center;margin-bottom:28px;'>"
+        "<span style='display:inline-flex;align-items:center;gap:10px;"
+        "background:rgba(108,99,255,0.12);border:1px solid rgba(108,99,255,0.3);"
+        "border-radius:50px;padding:8px 22px;font-size:0.82rem;font-weight:600;color:#a89fff;letter-spacing:.4px;'>"
+        "🚀&nbsp; SkillMatch AI &nbsp;·&nbsp; Career Intelligence Platform"
+        "</span></div>",
+        unsafe_allow_html=True
+    )
 
-        <div class="hero-title">
-            Land Your Dream Job<br>with <span class="grad">Smarter Career Tools</span>
-        </div>
+    # Hero title
+    st.markdown(
+        "<div style='text-align:center;font-size:clamp(2.2rem,4.5vw,3.8rem);"
+        "font-weight:800;line-height:1.12;color:#f2f2fc;letter-spacing:-1px;margin-bottom:18px;'>"
+        "Land Your Dream Job<br>"
+        "<span style='background:linear-gradient(135deg,#6c63ff,#ff6584,#43e97b);"
+        "-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;'>"
+        "with Smarter Career Tools"
+        "</span></div>",
+        unsafe_allow_html=True
+    )
 
-        <div class="hero-sub">
-            Upload your resume once. Get instant skill analysis,
-            ATS scoring & perfectly matched job listings.
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    # Hero subtitle
+    st.markdown(
+        "<div style='text-align:center;font-size:1rem;color:#555570;line-height:1.7;"
+        "max-width:500px;margin:0 auto 44px;'>"
+        "Upload your resume once. Get instant skill analysis,<br>"
+        "ATS scoring &amp; perfectly matched job listings."
+        "</div>",
+        unsafe_allow_html=True
+    )
 
     # ── NAV BUTTONS ──
     _, c1, c2, c3, _ = st.columns([2, 1, 1, 1, 2])
@@ -356,21 +370,21 @@ if p == "home":
         if st.button("💼 Jobs", use_container_width=True, key="hn_c"):
             st.session_state.page = "jobs"; st.rerun()
 
-    st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:32px'></div>", unsafe_allow_html=True)
 
     # ── UPLOAD ──
-    _, uc, _ = st.columns([1, 2, 1])
+    _, uc, _ = st.columns([1.2, 2, 1.2])
     with uc:
-        st.markdown("""
-        <div class="upload-header">
-            <div class="upload-icon-ring">📄</div>
-            <div>
-                <div class="upload-title">Upload Your Resume</div>
-                <div class="upload-sub">PDF only · Analyzed instantly · 100% private</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-        up = st.file_uploader("", type=["pdf"], label_visibility="collapsed")
+        # Upload header — plain st elements, no HTML overlap
+        st.markdown(
+            "<div style='text-align:center;padding:20px 0 16px;'>"
+            "<div style='font-size:2.4rem;margin-bottom:10px;'>📄</div>"
+            "<div style='font-size:1rem;font-weight:700;color:#e0e0f0;margin-bottom:4px;'>Upload Your Resume</div>"
+            "<div style='font-size:0.78rem;color:#444460;'>PDF only &nbsp;·&nbsp; Analyzed instantly &nbsp;·&nbsp; 100% private</div>"
+            "</div>",
+            unsafe_allow_html=True
+        )
+        up = st.file_uploader("Upload PDF Resume", type=["pdf"], label_visibility="collapsed")
         if up:
             with st.spinner("Analyzing your resume..."):
                 t = extract_text_from_pdf(up)
@@ -453,8 +467,8 @@ else:
 # ══════════════════════════════════════════════════════════
 if p == "analyzer":
     st.markdown("<div class='page-wrap'>", unsafe_allow_html=True)
-    st.markdown('<div class="page-title">📑 Resume Analyzer</div>', unsafe_allow_html=True)
-    st.markdown('<div class="page-sub">AI-powered skill & profile extraction</div>', unsafe_allow_html=True)
+    st.markdown("<div style='font-size:2rem;font-weight:800;color:#f2f2fc;letter-spacing:-0.5px;margin-bottom:6px;'>📑 Resume Analyzer</div>", unsafe_allow_html=True)
+    st.markdown("<div style='font-size:0.88rem;color:#555570;margin-bottom:28px;'>AI-powered skill &amp; profile extraction</div>", unsafe_allow_html=True)
 
     if not st.session_state.resume_text:
         st.markdown("""<div class="card" style="text-align:center;padding:60px;">
@@ -539,8 +553,8 @@ if p == "analyzer":
 # ══════════════════════════════════════════════════════════
 elif p == "ats":
     st.markdown("<div class='page-wrap'>", unsafe_allow_html=True)
-    st.markdown('<div class="page-title">🎯 ATS Score Checker</div>', unsafe_allow_html=True)
-    st.markdown('<div class="page-sub">Paste any job description to see your keyword match score</div>', unsafe_allow_html=True)
+    st.markdown("<div style='font-size:2rem;font-weight:800;color:#f2f2fc;letter-spacing:-0.5px;margin-bottom:6px;'>🎯 ATS Score Checker</div>", unsafe_allow_html=True)
+    st.markdown("<div style='font-size:0.88rem;color:#555570;margin-bottom:28px;'>Paste any job description to see your keyword match score</div>", unsafe_allow_html=True)
 
     if not st.session_state.resume_text:
         st.markdown("""<div class="card" style="text-align:center;padding:60px;">
@@ -597,8 +611,8 @@ elif p == "ats":
 # ══════════════════════════════════════════════════════════
 elif p == "jobs":
     st.markdown("<div class='page-wrap'>", unsafe_allow_html=True)
-    st.markdown('<div class="page-title">💼 Job Matcher</div>', unsafe_allow_html=True)
-    st.markdown('<div class="page-sub">AI-matched jobs with direct links to LinkedIn, Naukri & Indeed</div>', unsafe_allow_html=True)
+    st.markdown("<div style='font-size:2rem;font-weight:800;color:#f2f2fc;letter-spacing:-0.5px;margin-bottom:6px;'>💼 Job Matcher</div>", unsafe_allow_html=True)
+    st.markdown("<div style='font-size:0.88rem;color:#555570;margin-bottom:28px;'>AI-matched jobs with direct links to LinkedIn, Naukri &amp; Indeed</div>", unsafe_allow_html=True)
 
     c1,c2 = st.columns(2)
     with c1: role = st.text_input("🔍 Target Role", placeholder="e.g. Data Scientist, ML Engineer, Full Stack Dev")
@@ -625,18 +639,18 @@ elif p == "jobs":
         </div>""", unsafe_allow_html=True)
 
         for job in jobs:
-            score  = job.get("match_score",0)
-            clr    = "#43e97b" if score>=80 else "#ffb347" if score>=65 else "#ff6584"
-            src    = job.get("source","")
-            sc     = "#6c63ff" if src=="LinkedIn" else "#ff6584" if src=="Naukri" else "#43e97b"
-            badges = "".join([f'<span class="badge">{s}</span>' for s in job.get("required_skills",[])])
+            score   = job.get("match_score", 0)
+            clr     = "#43e97b" if score>=80 else "#ffb347" if score>=65 else "#ff6584"
+            badges  = "".join([f'<span class="badge">{s}</span>' for s in job.get("required_skills",[])])
+            li_url  = job.get("linkedin_url","#")
+            nk_url  = job.get("naukri_url","#")
+            ind_url = job.get("indeed_url","#")
+
             st.markdown(f"""<div class="job-card">
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;">
                     <div style="flex:1;min-width:0;">
                         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
                             <span style="font-size:1rem;font-weight:700;color:#f2f2fc;">{job.get('title','')}</span>
-                            <span style="font-size:0.7rem;padding:3px 11px;border-radius:20px;
-                                color:{sc};background:rgba(108,99,255,0.07);border:1px solid rgba(108,99,255,0.15);">{src}</span>
                             <span style="font-size:0.72rem;color:#333350;">🕐 {job.get('posted','')}</span>
                         </div>
                         <div style="font-size:0.83rem;color:#555570;margin-bottom:12px;display:flex;gap:18px;flex-wrap:wrap;">
@@ -647,7 +661,36 @@ elif p == "jobs":
                         <div style="font-size:0.83rem;color:#555570;line-height:1.6;margin-bottom:14px;">
                             {job.get('description','')[:240]}
                         </div>
-                        <div>{badges}</div>
+                        <div style="margin-bottom:14px;">{badges}</div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <a href="{li_url}" target="_blank"
+                               style="display:inline-flex;align-items:center;gap:6px;
+                               padding:7px 14px;border-radius:8px;font-size:0.78rem;font-weight:600;
+                               background:rgba(10,102,194,0.15);border:1px solid rgba(10,102,194,0.35);
+                               color:#4a9edd;text-decoration:none;transition:all 0.2s;"
+                               onmouseover="this.style.background='rgba(10,102,194,0.28)'"
+                               onmouseout="this.style.background='rgba(10,102,194,0.15)'">
+                               🔗 LinkedIn
+                            </a>
+                            <a href="{nk_url}" target="_blank"
+                               style="display:inline-flex;align-items:center;gap:6px;
+                               padding:7px 14px;border-radius:8px;font-size:0.78rem;font-weight:600;
+                               background:rgba(255,101,132,0.12);border:1px solid rgba(255,101,132,0.3);
+                               color:#ff6584;text-decoration:none;transition:all 0.2s;"
+                               onmouseover="this.style.background='rgba(255,101,132,0.25)'"
+                               onmouseout="this.style.background='rgba(255,101,132,0.12)'">
+                               🔗 Naukri
+                            </a>
+                            <a href="{ind_url}" target="_blank"
+                               style="display:inline-flex;align-items:center;gap:6px;
+                               padding:7px 14px;border-radius:8px;font-size:0.78rem;font-weight:600;
+                               background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.25);
+                               color:#43e97b;text-decoration:none;transition:all 0.2s;"
+                               onmouseover="this.style.background='rgba(67,233,123,0.22)'"
+                               onmouseout="this.style.background='rgba(67,233,123,0.1)'">
+                               🔗 Indeed
+                            </a>
+                        </div>
                     </div>
                     <div style="flex-shrink:0;text-align:center;min-width:82px;
                         background:rgba(108,99,255,0.06);border:1px solid rgba(108,99,255,0.12);

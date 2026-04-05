@@ -1,7 +1,23 @@
 import re
 import random
+import urllib.parse
 
-# Real job listings by role category
+# Real LinkedIn/Naukri search URLs generator
+def _linkedin_url(title, company, location):
+    q = urllib.parse.quote_plus(f"{title} {company}")
+    loc = urllib.parse.quote_plus(location or "India")
+    return f"https://www.linkedin.com/jobs/search/?keywords={q}&location={loc}"
+
+def _naukri_url(title, location):
+    t = title.lower().replace(" ", "-")
+    loc = (location or "india").lower().replace(" ", "-")
+    return f"https://www.naukri.com/{t}-jobs-in-{loc}"
+
+def _indeed_url(title, company, location):
+    q = urllib.parse.quote_plus(f"{title} {company}")
+    loc = urllib.parse.quote_plus(location or "India")
+    return f"https://in.indeed.com/jobs?q={q}&l={loc}"
+
 JOB_DATA = {
     "data scientist": [
         {"title":"Data Scientist","company":"Flipkart","location":"Bangalore","desc":"Work on recommendation systems and customer behavior analytics using ML models.","skills":["Python","Machine Learning","SQL","Pandas","Scikit-learn"],"salary":"18-28 LPA"},
@@ -51,58 +67,50 @@ JOB_DATA = {
     ],
 }
 
-SOURCES = ["LinkedIn", "Naukri", "Indeed"]
-POSTED  = ["Today", "Yesterday", "2 days ago", "3 days ago", "1 week ago"]
+POSTED = ["Today","Yesterday","2 days ago","3 days ago","1 week ago"]
 
-
-def _match_score(resume_text: str, job_skills: list) -> int:
-    """Calculate match score based on skill overlap."""
+def _match_score(resume_text, job_skills):
     if not resume_text:
         return random.randint(50, 75)
-    r_lower = resume_text.lower()
-    matched = sum(1 for s in job_skills if s.lower() in r_lower)
-    base    = int((matched / max(len(job_skills), 1)) * 100)
-    # add slight randomness ±5
+    r = resume_text.lower()
+    matched = sum(1 for s in job_skills if s.lower() in r)
+    base = int((matched / max(len(job_skills), 1)) * 100)
     return min(98, max(40, base + random.randint(-5, 5)))
 
-
-def fetch_jobs(role: str, location: str, resume_text: str) -> list:
-    """Fetch matching jobs based on role — no API needed."""
+def fetch_jobs(role, location, resume_text):
     role_lower = role.lower().strip()
-
-    # Find best matching category
-    matched_category = None
-    best_overlap = 0
-    for category in JOB_DATA:
-        overlap = sum(1 for word in category.split() if word in role_lower)
-        if overlap > best_overlap:
-            best_overlap = overlap
-            matched_category = category
-
-    # Fallback to software engineer if no match
-    if not matched_category or best_overlap == 0:
-        matched_category = "software engineer"
-
-    jobs_raw = JOB_DATA[matched_category]
+    matched_cat = None
+    best = 0
+    for cat in JOB_DATA:
+        overlap = sum(1 for w in cat.split() if w in role_lower)
+        if overlap > best:
+            best = overlap
+            matched_cat = cat
+    if not matched_cat or best == 0:
+        matched_cat = "software engineer"
 
     results = []
-    for job in jobs_raw:
-        # Filter by location if provided
-        if location and location.lower() not in job["location"].lower() and "remote" not in job["location"].lower():
-            if "remote" not in location.lower():
-                pass  # include anyway but location won't match
-
+    for job in JOB_DATA[matched_cat]:
+        loc = location if location else job["location"]
         score = _match_score(resume_text, job["skills"])
+
+        # Generate real search URLs
+        li_url  = _linkedin_url(job["title"], job["company"], loc)
+        nk_url  = _naukri_url(job["title"], loc)
+        ind_url = _indeed_url(job["title"], job["company"], loc)
+
         results.append({
-            "title":          job["title"],
-            "company":        job["company"],
-            "location":       location if location else job["location"],
-            "description":    job["desc"],
-            "required_skills":job["skills"],
-            "salary_range":   job["salary"],
-            "source":         random.choice(SOURCES),
-            "posted":         random.choice(POSTED),
-            "match_score":    score,
+            "title":           job["title"],
+            "company":         job["company"],
+            "location":        loc,
+            "description":     job["desc"],
+            "required_skills": job["skills"],
+            "salary_range":    job["salary"],
+            "posted":          random.choice(POSTED),
+            "match_score":     score,
+            "linkedin_url":    li_url,
+            "naukri_url":      nk_url,
+            "indeed_url":      ind_url,
         })
 
     results.sort(key=lambda x: x["match_score"], reverse=True)
