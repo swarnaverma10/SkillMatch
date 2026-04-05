@@ -30,8 +30,6 @@ html, body { overflow-x: hidden; }
     padding: 60px 24px 40px;
     position: relative; overflow: hidden; text-align: center;
 }
-
-/* Glow orbs */
 .hero-wrap::before {
     content: '';
     position: absolute; top: -120px; left: 50%; transform: translateX(-50%);
@@ -46,8 +44,6 @@ html, body { overflow-x: hidden; }
     background: radial-gradient(circle, rgba(255,101,132,0.08) 0%, transparent 65%);
     pointer-events: none;
 }
-
-/* Floating dots */
 .dot {
     position: absolute; border-radius: 50%;
     background: rgba(108,99,255,0.4);
@@ -63,25 +59,16 @@ html, body { overflow-x: hidden; }
     50%      { transform: translateY(-14px); opacity:1; }
 }
 
-/* Brand pill */
-.brand-pill {
-    display: inline-flex; align-items: center; gap: 10px;
-    background: rgba(108,99,255,0.1);
-    border: 1px solid rgba(108,99,255,0.3);
-    border-radius: 50px; padding: 8px 22px;
-    margin-bottom: 32px;
-    animation: slideDown 0.6s ease both;
-}
-.brand-pill-icon { font-size: 1.2rem; animation: rotateSlow 10s linear infinite; }
-@keyframes rotateSlow { to { transform: rotate(360deg); } }
-.brand-pill-text  { font-size: 0.82rem; font-weight: 600; color: #a89fff; letter-spacing: .4px; }
-
 @keyframes slideDown {
     from { opacity:0; transform:translateY(-20px); }
     to   { opacity:1; transform:translateY(0); }
 }
+@keyframes slideUp {
+    from { opacity:0; transform:translateY(24px); }
+    to   { opacity:1; transform:translateY(0); }
+}
+@keyframes rotateSlow { to { transform: rotate(360deg); } }
 
-/* Hero title */
 .hero-title {
     font-size: clamp(2.4rem, 5vw, 4rem);
     font-weight: 800; line-height: 1.1;
@@ -93,11 +80,6 @@ html, body { overflow-x: hidden; }
     background: linear-gradient(135deg, #6c63ff 0%, #ff6584 55%, #43e97b 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-@keyframes slideUp {
-    from { opacity:0; transform:translateY(24px); }
-    to   { opacity:1; transform:translateY(0); }
-}
-
 .hero-sub {
     font-size: clamp(0.95rem, 1.8vw, 1.1rem);
     color: #55556a; line-height: 1.7; max-width: 520px;
@@ -105,31 +87,7 @@ html, body { overflow-x: hidden; }
     animation: slideUp 0.65s ease 0.2s both;
 }
 
-/* ─── UPLOAD BOX ────────────────────────────────────── */
-.upload-box-wrap {
-    width: 100%; max-width: 480px; margin: 0 auto;
-    animation: slideUp 0.65s ease 0.3s both;
-}
-.upload-header {
-    display: flex; align-items: center; justify-content: center; gap: 12px;
-    margin-bottom: 14px;
-}
-.upload-icon-ring {
-    width: 48px; height: 48px; border-radius: 50%;
-    background: linear-gradient(135deg, rgba(108,99,255,0.3), rgba(255,101,132,0.2));
-    border: 1px solid rgba(108,99,255,0.4);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.3rem;
-    animation: pulseRing 2.5s ease-in-out infinite;
-}
-@keyframes pulseRing {
-    0%,100% { box-shadow: 0 0 0 0 rgba(108,99,255,0.3); }
-    50%      { box-shadow: 0 0 0 10px rgba(108,99,255,0); }
-}
-.upload-title { font-size: 1rem; font-weight: 700; color: #e0e0f0; }
-.upload-sub   { font-size: 0.78rem; color: #444460; margin-top: 2px; }
-
-/* Override streamlit file uploader */
+/* ─── UPLOAD BOX ── */
 [data-testid="stFileUploadDropzone"] {
     background: linear-gradient(135deg, rgba(108,99,255,0.06), rgba(255,101,132,0.04)) !important;
     border: 2px dashed rgba(108,99,255,0.4) !important;
@@ -142,12 +100,7 @@ html, body { overflow-x: hidden; }
     border-color: #6c63ff !important;
     box-shadow: 0 0 30px rgba(108,99,255,0.15) !important;
 }
-[data-testid="stFileUploadDropzone"] p {
-    color: #666688 !important; font-size: 0.85rem !important;
-}
-[data-testid="stFileUploaderDropzoneInput"] { cursor: pointer !important; }
-
-/* Browse button inside uploader */
+[data-testid="stFileUploadDropzone"] p { color: #666688 !important; font-size: 0.85rem !important; }
 [data-testid="stFileUploadDropzone"] button {
     background: rgba(108,99,255,0.15) !important;
     border: 1px solid rgba(108,99,255,0.4) !important;
@@ -156,8 +109,7 @@ html, body { overflow-x: hidden; }
     padding: 7px 18px !important;
 }
 
-/* ─── STATS after upload ───────────────────────────── */
-.stats-row { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:28px; }
+/* ─── STATS ── */
 .stat-chip {
     background: #0f0f1c; border: 1px solid #1a1a2e;
     border-radius: 12px; padding: 14px 22px; text-align: center; min-width: 110px;
@@ -165,27 +117,12 @@ html, body { overflow-x: hidden; }
 .stat-val   { font-size: 1.6rem; font-weight: 800; }
 .stat-label { font-size: 0.68rem; color: #444460; text-transform:uppercase; letter-spacing:1px; margin-top:4px; }
 
-/* ─── FEATURE CARDS ────────────────────────────────── */
-.features-section {
-    padding: 56px 24px 40px; max-width: 1000px; margin: 0 auto;
-    animation: slideUp 0.7s ease 0.45s both;
-}
-.features-heading { text-align:center; margin-bottom:32px; }
-.features-heading h2 { font-size: 1.8rem; font-weight: 800; color: #f2f2fc; letter-spacing: -.5px; }
-.features-heading p  { font-size: 0.88rem; color: #444460; margin-top: 8px; }
-
-.feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+/* ─── FEATURE CARDS ── */
 .feat-card {
     background: #0f0f1c; border: 1px solid #1a1a2e;
     border-radius: 20px; padding: 32px 24px; text-align: center;
     transition: all 0.25s ease; position: relative; overflow: hidden;
 }
-.feat-card::before {
-    content: ''; position: absolute; inset: 0; border-radius: 20px;
-    background: radial-gradient(ellipse at top, rgba(108,99,255,0.06), transparent 60%);
-    opacity: 0; transition: opacity 0.3s;
-}
-.feat-card:hover::before { opacity: 1; }
 .feat-card:hover {
     border-color: rgba(108,99,255,0.45);
     transform: translateY(-5px);
@@ -205,15 +142,8 @@ html, body { overflow-x: hidden; }
     border-radius: 20px; font-size: 0.72rem; color: #a89fff; margin-bottom: 20px;
 }
 
-/* ─── INNER PAGES ──────────────────────────────────── */
-.inner-nav {
-    display: flex; align-items: center; gap: 8px;
-    padding: 16px 32px; border-bottom: 1px solid #1a1a2e;
-    background: rgba(7,7,15,0.9); position: sticky; top: 0; z-index: 99;
-    backdrop-filter: blur(12px);
-}
+/* ─── INNER PAGES ── */
 .page-wrap { padding: 36px 40px 60px; max-width: 1060px; margin: 0 auto; }
-
 .page-title {
     font-size: clamp(1.6rem, 3vw, 2.2rem);
     font-weight: 800; color: #f2f2fc;
@@ -221,15 +151,11 @@ html, body { overflow-x: hidden; }
 }
 .page-sub { font-size: 0.88rem; color: #444460; margin-bottom: 32px; }
 
-/* Cards */
 .card {
     background: #0f0f1c; border: 1px solid #1a1a2e;
     border-radius: 16px; padding: 24px;
     transition: border-color 0.2s;
 }
-
-/* Metric */
-.metric-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 28px; }
 .metric {
     background: #0f0f1c; border: 1px solid #1a1a2e;
     border-radius: 14px; padding: 22px 16px; text-align: center;
@@ -237,7 +163,6 @@ html, body { overflow-x: hidden; }
 .metric-val   { font-size: 2rem; font-weight: 800; line-height: 1; }
 .metric-label { font-size: 0.68rem; color: #333350; text-transform:uppercase; letter-spacing:1.2px; margin-top:8px; }
 
-/* Badge */
 .badge {
     display: inline-block;
     background: rgba(108,99,255,0.1); border: 1px solid rgba(108,99,255,0.2);
@@ -247,7 +172,6 @@ html, body { overflow-x: hidden; }
 .badge.green { background:rgba(67,233,123,0.08); border-color:rgba(67,233,123,0.22); color:#43e97b; }
 .badge.red   { background:rgba(255,101,132,0.08); border-color:rgba(255,101,132,0.22); color:#ff6584; }
 
-/* Skill section */
 .skill-sec {
     background: #0f0f1c; border: 1px solid #1a1a2e;
     border-radius: 14px; padding: 18px 20px; margin: 8px 0;
@@ -257,11 +181,9 @@ html, body { overflow-x: hidden; }
     text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 12px;
 }
 
-/* Score bar */
 .sbar-bg   { height:8px; background:#1a1a2e; border-radius:4px; margin-top:14px; }
 .sbar-fill { height:100%; border-radius:4px; }
 
-/* Tip */
 .tip {
     padding: 13px 18px;
     background: rgba(108,99,255,0.05); border-left: 3px solid #6c63ff;
@@ -269,26 +191,39 @@ html, body { overflow-x: hidden; }
     margin: 6px 0; line-height: 1.55;
 }
 
-/* Job card */
+/* ─── JOB CARD ── */
 .job-card {
     background: #0f0f1c; border: 1px solid #1a1a2e;
-    border-radius: 16px; padding: 22px 24px; margin: 10px 0;
+    border-radius: 16px; padding: 22px 24px; margin: 12px 0;
     transition: border-color 0.2s, transform 0.2s;
 }
 .job-card:hover { border-color: rgba(108,99,255,0.35); transform: translateY(-2px); }
 
-/* ─── BUTTONS ──────────────────────────────────────── */
+/* ─── APPLY LINKS ── */
+.apply-links { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+.alink {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 14px; border-radius: 8px;
+    font-size: 0.78rem; font-weight: 600;
+    text-decoration: none !important;
+    transition: all 0.18s;
+}
+.alink:hover { transform: translateY(-1px); filter: brightness(1.15); }
+.alink-li  { background:rgba(10,102,194,0.15); border:1px solid rgba(10,102,194,0.35); color:#5baeff !important; }
+.alink-nk  { background:rgba(255,101,132,0.12); border:1px solid rgba(255,101,132,0.30); color:#ff6584 !important; }
+.alink-ind { background:rgba(67,233,123,0.10); border:1px solid rgba(67,233,123,0.28); color:#43e97b !important; }
+.alink-g   { background:rgba(255,180,0,0.10); border:1px solid rgba(255,180,0,0.25); color:#ffb347 !important; }
+
+/* ─── BUTTONS ── */
 .stButton > button {
     background: linear-gradient(135deg, #6c63ff, #8b5cf6) !important;
     color: #fff !important; border: none !important;
     border-radius: 11px !important; font-weight: 600 !important;
     font-size: 0.88rem !important; padding: 10px 24px !important;
-    letter-spacing: .2px !important;
     transition: opacity 0.2s, transform 0.15s !important;
 }
 .stButton > button:hover { opacity:.85 !important; transform:translateY(-1px) !important; }
 
-/* Inputs */
 .stTextInput input, .stTextArea textarea {
     background: #0f0f1c !important; border: 1px solid #1a1a2e !important;
     border-radius: 11px !important; color: #e0e0f0 !important; font-size: 0.88rem !important;
@@ -298,12 +233,9 @@ html, body { overflow-x: hidden; }
 }
 .stTextInput label, .stTextArea label { color: #888 !important; font-size: 0.82rem !important; }
 
-/* Tabs */
 .stTabs [data-baseweb="tab-list"] { background:transparent !important; border-bottom:1px solid #1a1a2e !important; }
 .stTabs [data-baseweb="tab"]      { color:#444460 !important; font-size:0.88rem !important; font-weight:500 !important; }
 .stTabs [aria-selected="true"]    { color:#6c63ff !important; border-bottom-color:#6c63ff !important; }
-
-/* Expander */
 .streamlit-expanderHeader { color: #666688 !important; font-size: 0.85rem !important; }
 
 ::-webkit-scrollbar { width:5px; height:5px; }
@@ -312,8 +244,9 @@ html, body { overflow-x: hidden; }
 """, unsafe_allow_html=True)
 
 # ── Session state ──────────────────────────────────────────
-for k,v in [("resume_text",""),("resume_data",{}),("jobs",[]),("page","home")]:
-    if k not in st.session_state: st.session_state[k] = v
+for k, v in [("resume_text",""), ("resume_data",{}), ("jobs",[]), ("page","home")]:
+    if k not in st.session_state:
+        st.session_state[k] = v
 
 p = st.session_state.page
 
@@ -321,8 +254,6 @@ p = st.session_state.page
 # HOME PAGE
 # ══════════════════════════════════════════════════════════
 if p == "home":
-
-    # ── HERO ──
     st.markdown("<div style='height:60px'></div>", unsafe_allow_html=True)
 
     # Brand pill
@@ -348,7 +279,6 @@ if p == "home":
         unsafe_allow_html=True
     )
 
-    # Hero subtitle
     st.markdown(
         "<div style='text-align:center;font-size:1rem;color:#555570;line-height:1.7;"
         "max-width:500px;margin:0 auto 44px;'>"
@@ -358,7 +288,7 @@ if p == "home":
         unsafe_allow_html=True
     )
 
-    # ── NAV BUTTONS ──
+    # Nav buttons
     _, c1, c2, c3, _ = st.columns([2, 1, 1, 1, 2])
     with c1:
         if st.button("📑 Analyzer", use_container_width=True, key="hn_a"):
@@ -372,10 +302,9 @@ if p == "home":
 
     st.markdown("<div style='height:32px'></div>", unsafe_allow_html=True)
 
-    # ── UPLOAD ──
+    # Upload
     _, uc, _ = st.columns([1.2, 2, 1.2])
     with uc:
-        # Upload header — plain st elements, no HTML overlap
         st.markdown(
             "<div style='text-align:center;padding:20px 0 16px;'>"
             "<div style='font-size:2.4rem;margin-bottom:10px;'>📄</div>"
@@ -392,16 +321,16 @@ if p == "home":
                 st.session_state.resume_data = analyze_resume(t)
             st.success("✅ Resume analyzed! Scroll down to explore features.")
 
-    # ── STATS ──
+    # Stats
     if st.session_state.resume_text:
         d = st.session_state.resume_data
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
-        s1,s2,s3,s4 = st.columns(4)
+        s1, s2, s3, s4 = st.columns(4)
         for col, val, lbl, clr in [
-            (s1, str(d.get('years_experience','0')), "Years Exp.",    "#6c63ff"),
-            (s2, str(len(d.get('skills', []))),      "Skills Found",  "#43e97b"),
-            (s3, d.get('name','—')[:16],             "Candidate",     "#ffb347"),
-            (s4, "✅ Ready",                          "Status",        "#ff6584"),
+            (s1, str(d.get('years_experience','0')), "Years Exp.",   "#6c63ff"),
+            (s2, str(len(d.get('skills', []))),      "Skills Found", "#43e97b"),
+            (s3, (d.get('name','—') or '—')[:16],    "Candidate",    "#ffb347"),
+            (s4, "✅ Ready",                          "Status",       "#ff6584"),
         ]:
             with col:
                 st.markdown(f"""<div class="stat-chip">
@@ -409,27 +338,19 @@ if p == "home":
                     <div class="stat-label">{lbl}</div>
                 </div>""", unsafe_allow_html=True)
 
-    # ── FEATURE CARDS ──
+    # Feature cards
     st.markdown("""
-    <div class="features-section">
-        <div class="features-heading">
-            <h2>Everything You Need</h2>
-            <p>Three powerful tools. Zero complexity. No sign-up required.</p>
-        </div>
+    <div style="text-align:center;padding:56px 0 24px;">
+        <div style="font-size:1.8rem;font-weight:800;color:#f2f2fc;letter-spacing:-.5px;">Everything You Need</div>
+        <div style="font-size:0.88rem;color:#444460;margin-top:8px;">Three powerful tools. Zero complexity. No sign-up required.</div>
     </div>
     """, unsafe_allow_html=True)
 
     fc1, fc2, fc3 = st.columns(3)
     for col, icon, title, desc, tag, pg in [
-        (fc1,"📑","Resume Analyzer",
-         "AI extracts skills, experience, education & contact info automatically.",
-         "Skill Extraction","analyzer"),
-        (fc2,"🎯","ATS Score",
-         "Paste any JD and get a live keyword match score with gaps & tips.",
-         "ATS Matching","ats"),
-        (fc3,"💼","Job Matcher",
-         "Matched jobs from LinkedIn, Naukri & Indeed with direct clickable apply links.",
-         "Live Job Links","jobs"),
+        (fc1,"📑","Resume Analyzer","AI extracts skills, experience, education & contact info automatically.","Skill Extraction","analyzer"),
+        (fc2,"🎯","ATS Score","Paste any JD and get a live keyword match score with gaps & tips.","ATS Matching","ats"),
+        (fc3,"💼","Job Matcher","Role-specific jobs from LinkedIn, Naukri & Indeed — click to apply directly.","Live Job Links","jobs"),
     ]:
         with col:
             st.markdown(f"""<div class="feat-card">
@@ -447,19 +368,19 @@ if p == "home":
 # INNER PAGE NAV
 # ══════════════════════════════════════════════════════════
 else:
-    n1,n2,n3,n4,n5 = st.columns([0.6,1,1,1,5])
+    n1, n2, n3, n4, n5 = st.columns([0.6, 1, 1, 1, 5])
     with n1:
         if st.button("← Home", key="nb_home"):
-            st.session_state.page="home"; st.rerun()
+            st.session_state.page = "home"; st.rerun()
     with n2:
         if st.button("📑 Analyzer", key="nb_a", use_container_width=True):
-            st.session_state.page="analyzer"; st.rerun()
+            st.session_state.page = "analyzer"; st.rerun()
     with n3:
         if st.button("🎯 ATS Score", key="nb_b", use_container_width=True):
-            st.session_state.page="ats"; st.rerun()
+            st.session_state.page = "ats"; st.rerun()
     with n4:
         if st.button("💼 Jobs", key="nb_c", use_container_width=True):
-            st.session_state.page="jobs"; st.rerun()
+            st.session_state.page = "jobs"; st.rerun()
     st.markdown("<hr style='border:none;border-top:1px solid #1a1a2e;margin:0;'>", unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════
@@ -467,8 +388,8 @@ else:
 # ══════════════════════════════════════════════════════════
 if p == "analyzer":
     st.markdown("<div class='page-wrap'>", unsafe_allow_html=True)
-    st.markdown("<div style='font-size:2rem;font-weight:800;color:#f2f2fc;letter-spacing:-0.5px;margin-bottom:6px;'>📑 Resume Analyzer</div>", unsafe_allow_html=True)
-    st.markdown("<div style='font-size:0.88rem;color:#555570;margin-bottom:28px;'>AI-powered skill &amp; profile extraction</div>", unsafe_allow_html=True)
+    st.markdown("<div class='page-title'>📑 Resume Analyzer</div>", unsafe_allow_html=True)
+    st.markdown("<div class='page-sub'>AI-powered skill &amp; profile extraction</div>", unsafe_allow_html=True)
 
     if not st.session_state.resume_text:
         st.markdown("""<div class="card" style="text-align:center;padding:60px;">
@@ -480,7 +401,6 @@ if p == "analyzer":
         data   = st.session_state.resume_data
         skills = data.get("skills", [])
 
-        # Profile card
         st.markdown(f"""<div class="card" style="margin-bottom:20px;display:flex;align-items:center;gap:18px;">
             <div style="width:56px;height:56px;border-radius:50%;flex-shrink:0;
                 background:linear-gradient(135deg,#6c63ff,#ff6584);
@@ -494,8 +414,7 @@ if p == "analyzer":
             </div>
         </div>""", unsafe_allow_html=True)
 
-        # Metrics
-        mc1,mc2,mc3 = st.columns(3)
+        mc1, mc2, mc3 = st.columns(3)
         with mc1:
             st.markdown(f"""<div class="metric">
                 <div class="metric-val" style="color:#6c63ff;">{data.get('years_experience','0')}</div>
@@ -513,7 +432,6 @@ if p == "analyzer":
                 <div class="metric-label" style="margin-top:10px;">Education</div>
             </div>""", unsafe_allow_html=True)
 
-        # Skills categorized
         if skills:
             st.markdown("<div style='margin:28px 0 14px;font-size:1rem;font-weight:700;color:#f2f2fc;'>🔑 Detected Skills</div>", unsafe_allow_html=True)
             cats = {
@@ -524,9 +442,9 @@ if p == "analyzer":
                 "🗄️ Databases":     (["SQL","MySQL","PostgreSQL","MongoDB","Redis","Firebase","Oracle","SQLite","Elasticsearch","DynamoDB","Cassandra"], "#00d4aa"),
                 "🛠️ Tools":         (["Agile","Scrum","Jira","Figma","Spark","Kafka","Power BI","Tableau","Excel","Postman","Selenium","Unity"], "#a78bfa"),
             }
-            skill_set = set(s.lower() for s in skills)
+            skill_set = {s.lower() for s in skills}
             all_cat   = set()
-            for cat,(cskills,clr) in cats.items():
+            for cat, (cskills, clr) in cats.items():
                 matched = [s for s in cskills if s.lower() in skill_set]
                 if matched:
                     all_cat.update(s.lower() for s in matched)
@@ -553,8 +471,8 @@ if p == "analyzer":
 # ══════════════════════════════════════════════════════════
 elif p == "ats":
     st.markdown("<div class='page-wrap'>", unsafe_allow_html=True)
-    st.markdown("<div style='font-size:2rem;font-weight:800;color:#f2f2fc;letter-spacing:-0.5px;margin-bottom:6px;'>🎯 ATS Score Checker</div>", unsafe_allow_html=True)
-    st.markdown("<div style='font-size:0.88rem;color:#555570;margin-bottom:28px;'>Paste any job description to see your keyword match score</div>", unsafe_allow_html=True)
+    st.markdown("<div class='page-title'>🎯 ATS Score Checker</div>", unsafe_allow_html=True)
+    st.markdown("<div class='page-sub'>Paste any job description to see your keyword match score</div>", unsafe_allow_html=True)
 
     if not st.session_state.resume_text:
         st.markdown("""<div class="card" style="text-align:center;padding:60px;">
@@ -574,7 +492,7 @@ elif p == "ats":
                       else "Add more relevant keywords to improve chances." if score>=50
                       else "Major gaps found — tailor your resume to this JD.")
 
-            c1,c2 = st.columns([1,1.8])
+            c1, c2 = st.columns([1, 1.8])
             with c1:
                 st.markdown(f"""<div class="card" style="text-align:center;padding:40px 20px;">
                     <div style="font-size:0.65rem;color:#333350;text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;">ATS Match Score</div>
@@ -584,8 +502,8 @@ elif p == "ats":
                     <div style="font-size:0.78rem;color:#444460;margin-top:16px;line-height:1.5;">{msg}</div>
                 </div>""", unsafe_allow_html=True)
             with c2:
-                matched = result.get("matched",[])
-                missing = result.get("missing",[])
+                matched = result.get("matched", [])
+                missing = result.get("missing", [])
                 m = "".join([f'<span class="badge green">{k}</span>' for k in matched])
                 x = "".join([f'<span class="badge red">{k}</span>'   for k in missing])
                 st.markdown(f"""<div class="card" style="height:100%;">
@@ -599,104 +517,122 @@ elif p == "ats":
                     </div>
                 </div>""", unsafe_allow_html=True)
 
-            tips = result.get("tips",[])
+            tips = result.get("tips", [])
             if tips:
                 st.markdown("<div style='margin:24px 0 10px;font-size:1rem;font-weight:700;color:#f2f2fc;'>💡 How to Improve Your Score</div>", unsafe_allow_html=True)
                 for tip in tips:
                     st.markdown(f'<div class="tip">→ {tip}</div>', unsafe_allow_html=True)
+
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════
-# JOB MATCHER
+# JOB MATCHER — role-specific jobs + correct apply links
 # ══════════════════════════════════════════════════════════
 elif p == "jobs":
     st.markdown("<div class='page-wrap'>", unsafe_allow_html=True)
-    st.markdown("<div style='font-size:2rem;font-weight:800;color:#f2f2fc;letter-spacing:-0.5px;margin-bottom:6px;'>💼 Job Matcher</div>", unsafe_allow_html=True)
-    st.markdown("<div style='font-size:0.88rem;color:#555570;margin-bottom:28px;'>AI-matched jobs with direct links to LinkedIn, Naukri &amp; Indeed</div>", unsafe_allow_html=True)
+    st.markdown("<div class='page-title'>💼 Job Matcher</div>", unsafe_allow_html=True)
+    st.markdown("<div class='page-sub'>Role-specific jobs with direct apply links to LinkedIn, Naukri &amp; Indeed</div>", unsafe_allow_html=True)
 
-    c1,c2 = st.columns(2)
-    with c1: role = st.text_input("🔍 Target Role", placeholder="e.g. Data Scientist, ML Engineer, Full Stack Dev")
-    with c2: loc  = st.text_input("📍 Location (optional)", placeholder="e.g. Bangalore, Remote, Mumbai")
+    c1, c2 = st.columns(2)
+    with c1:
+        role = st.text_input("🔍 Target Role",
+            placeholder="e.g. ML Engineer, Data Scientist, Full Stack Developer, DevOps...")
+    with c2:
+        loc = st.text_input("📍 Location (optional)",
+            placeholder="e.g. Bangalore, Remote, Mumbai, Delhi...")
 
     if st.button("🔍 Find Matching Jobs", use_container_width=True) and role.strip():
-        with st.spinner("Finding best matches..."):
+        with st.spinner(f"Finding {role} jobs..."):
             st.session_state.jobs = fetch_jobs(role, loc, st.session_state.resume_text)
 
     if st.session_state.jobs:
         jobs = st.session_state.jobs
         best = jobs[0]
+
+        # Summary bar
         st.markdown(f"""<div style="display:flex;align-items:center;gap:24px;margin-bottom:22px;
             padding:16px 22px;background:#0f0f1c;border:1px solid #1a1a2e;border-radius:14px;flex-wrap:wrap;">
             <div>
                 <div style="font-size:0.68rem;color:#333350;text-transform:uppercase;letter-spacing:1px;">Results</div>
-                <div style="font-size:1rem;font-weight:700;color:#f2f2fc;margin-top:3px;">{len(jobs)} jobs for "{role}"</div>
+                <div style="font-size:1rem;font-weight:700;color:#f2f2fc;margin-top:3px;">{len(jobs)} {jobs[0]['title']} jobs found</div>
             </div>
             <div style="width:1px;height:34px;background:#1a1a2e;"></div>
             <div>
                 <div style="font-size:0.68rem;color:#333350;text-transform:uppercase;letter-spacing:1px;">Best Match</div>
                 <div style="font-size:1rem;font-weight:700;color:#43e97b;margin-top:3px;">{best['match_score']}% — {best['company']}</div>
             </div>
+            <div style="width:1px;height:34px;background:#1a1a2e;"></div>
+            <div>
+                <div style="font-size:0.68rem;color:#333350;text-transform:uppercase;letter-spacing:1px;">Apply via</div>
+                <div style="font-size:0.85rem;font-weight:600;color:#a89fff;margin-top:3px;">LinkedIn · Naukri · Indeed · Google</div>
+            </div>
         </div>""", unsafe_allow_html=True)
 
         for job in jobs:
-            score   = job.get("match_score", 0)
-            clr     = "#43e97b" if score>=80 else "#ffb347" if score>=65 else "#ff6584"
-            badges  = "".join([f'<span class="badge">{s}</span>' for s in job.get("required_skills",[])])
-            li_url  = job.get("linkedin_url","#")
-            nk_url  = job.get("naukri_url","#")
-            ind_url = job.get("indeed_url","#")
+            score  = job.get("match_score", 0)
+            clr    = "#43e97b" if score>=80 else "#ffb347" if score>=65 else "#ff6584"
+            badges = "".join([f'<span class="badge">{s}</span>' for s in job.get("required_skills", [])])
+
+            # All 4 links come pre-built from job_api.py
+            li_url  = job.get("linkedin_url", "#")
+            nk_url  = job.get("naukri_url",   "#")
+            ind_url = job.get("indeed_url",   "#")
+            g_url   = job.get("google_url",   "#")
+
+            # Source tag color
+            src = job.get("source","")
+            src_colors = {
+                "LinkedIn": ("rgba(10,102,194,0.12)","rgba(10,102,194,0.30)","#5baeff"),
+                "Naukri":   ("rgba(255,101,132,0.10)","rgba(255,101,132,0.28)","#ff8fa3"),
+                "Indeed":   ("rgba(67,233,123,0.08)", "rgba(67,233,123,0.24)","#43e97b"),
+            }
+            s_bg, s_bd, s_tc = src_colors.get(src, ("rgba(108,99,255,0.10)","rgba(108,99,255,0.25)","#a89fff"))
 
             st.markdown(f"""<div class="job-card">
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;">
+
                     <div style="flex:1;min-width:0;">
+                        <!-- Header -->
                         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
-                            <span style="font-size:1rem;font-weight:700;color:#f2f2fc;">{job.get('title','')}</span>
-                            <span style="font-size:0.72rem;color:#333350;">🕐 {job.get('posted','')}</span>
+                            <span style="font-size:1.02rem;font-weight:700;color:#f2f2fc;">{job.get('title','')}</span>
+                            <span style="font-size:0.7rem;padding:3px 10px;border-radius:20px;
+                                background:{s_bg};border:1px solid {s_bd};color:{s_tc};">{src}</span>
+                            <span style="font-size:0.7rem;color:#333350;">🕐 {job.get('posted','')}</span>
                         </div>
+
+                        <!-- Meta -->
                         <div style="font-size:0.83rem;color:#555570;margin-bottom:12px;display:flex;gap:18px;flex-wrap:wrap;">
                             <span>🏢 <b style="color:#c0c0d8;">{job.get('company','')}</b></span>
                             <span>📍 {job.get('location','')}</span>
                             <span>💰 <b style="color:#43e97b;">{job.get('salary_range','')}</b></span>
                         </div>
-                        <div style="font-size:0.83rem;color:#555570;line-height:1.6;margin-bottom:14px;">
+
+                        <!-- Description -->
+                        <div style="font-size:0.83rem;color:#555570;line-height:1.65;margin-bottom:14px;">
                             {job.get('description','')[:240]}
                         </div>
+
+                        <!-- Skill badges -->
                         <div style="margin-bottom:14px;">{badges}</div>
-                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                            <a href="{li_url}" target="_blank"
-                               style="display:inline-flex;align-items:center;gap:6px;
-                               padding:7px 14px;border-radius:8px;font-size:0.78rem;font-weight:600;
-                               background:rgba(10,102,194,0.15);border:1px solid rgba(10,102,194,0.35);
-                               color:#4a9edd;text-decoration:none;transition:all 0.2s;"
-                               onmouseover="this.style.background='rgba(10,102,194,0.28)'"
-                               onmouseout="this.style.background='rgba(10,102,194,0.15)'">
-                               🔗 LinkedIn
-                            </a>
-                            <a href="{nk_url}" target="_blank"
-                               style="display:inline-flex;align-items:center;gap:6px;
-                               padding:7px 14px;border-radius:8px;font-size:0.78rem;font-weight:600;
-                               background:rgba(255,101,132,0.12);border:1px solid rgba(255,101,132,0.3);
-                               color:#ff6584;text-decoration:none;transition:all 0.2s;"
-                               onmouseover="this.style.background='rgba(255,101,132,0.25)'"
-                               onmouseout="this.style.background='rgba(255,101,132,0.12)'">
-                               🔗 Naukri
-                            </a>
-                            <a href="{ind_url}" target="_blank"
-                               style="display:inline-flex;align-items:center;gap:6px;
-                               padding:7px 14px;border-radius:8px;font-size:0.78rem;font-weight:600;
-                               background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.25);
-                               color:#43e97b;text-decoration:none;transition:all 0.2s;"
-                               onmouseover="this.style.background='rgba(67,233,123,0.22)'"
-                               onmouseout="this.style.background='rgba(67,233,123,0.1)'">
-                               🔗 Indeed
-                            </a>
+
+                        <!-- Apply links — all 4 platforms -->
+                        <div class="apply-links">
+                            <a href="{li_url}"  target="_blank" class="alink alink-li">🔗 LinkedIn</a>
+                            <a href="{nk_url}"  target="_blank" class="alink alink-nk">🔗 Naukri</a>
+                            <a href="{ind_url}" target="_blank" class="alink alink-ind">🔗 Indeed</a>
+                            <a href="{g_url}"   target="_blank" class="alink alink-g">🔍 Google</a>
                         </div>
                     </div>
+
+                    <!-- Match score -->
                     <div style="flex-shrink:0;text-align:center;min-width:82px;
                         background:rgba(108,99,255,0.06);border:1px solid rgba(108,99,255,0.12);
                         border-radius:14px;padding:18px 14px;">
                         <div style="font-size:2.2rem;font-weight:800;color:{clr};line-height:1;">{score}%</div>
                         <div style="font-size:0.62rem;color:#333350;text-transform:uppercase;letter-spacing:.5px;margin-top:5px;">Match</div>
+                        <div style="margin-top:10px;height:4px;background:#1a1a2e;border-radius:2px;overflow:hidden;">
+                            <div style="width:{score}%;height:100%;background:{clr};border-radius:2px;"></div>
+                        </div>
                     </div>
                 </div>
             </div>""", unsafe_allow_html=True)
@@ -705,9 +641,10 @@ elif p == "jobs":
         st.markdown("""<div class="card" style="text-align:center;padding:60px;">
             <div style="font-size:3rem;margin-bottom:14px;">🔍</div>
             <div style="font-size:1rem;font-weight:700;color:#e0e0f0;margin-bottom:10px;">Ready to Search</div>
-            <div style="font-size:0.85rem;color:#444460;line-height:1.7;">
-                Try: <b style="color:#a89fff;">Data Scientist</b> · <b style="color:#a89fff;">Full Stack Developer</b><br>
-                <b style="color:#a89fff;">ML Engineer</b> · <b style="color:#a89fff;">Python Developer</b>
+            <div style="font-size:0.85rem;color:#444460;line-height:2;">
+                <b style="color:#a89fff;">ML Engineer</b> · <b style="color:#a89fff;">Data Scientist</b> · <b style="color:#a89fff;">Full Stack Developer</b><br>
+                <b style="color:#a89fff;">Frontend Developer</b> · <b style="color:#a89fff;">DevOps Engineer</b> · <b style="color:#a89fff;">Android Developer</b><br>
+                <b style="color:#a89fff;">Product Manager</b> · <b style="color:#a89fff;">UI UX Designer</b> · <b style="color:#a89fff;">QA Engineer</b>
             </div>
         </div>""", unsafe_allow_html=True)
 
