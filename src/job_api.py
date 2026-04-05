@@ -23,6 +23,7 @@ def _build_urls(title: str, company: str, location: str):
         "linkedin_url": f"https://www.linkedin.com/jobs/search/?keywords={tq}&location={lq}&f_TPR=r604800&sortBy=R",
         "naukri_url":   f"https://www.naukri.com/{naukri_path}?src=sortby_relevance",
         "indeed_url":   f"https://in.indeed.com/jobs?q={tqr}&l={lq}&sort=date&fromage=14",
+        "glassdoor_url":f"https://www.glassdoor.co.in/Job/jobs.htm?sc.keyword={tqr}&locT=C&locName={lq}",
         "google_url":   f"https://www.google.com/search?q={urllib.parse.quote_plus(title+' jobs '+location)}",
     }
 
@@ -578,6 +579,7 @@ def fetch_jobs(role: str, location: str, resume_text: str) -> list:
             "linkedin_url":   urls["linkedin_url"],
             "naukri_url":     urls["naukri_url"],
             "indeed_url":     urls["indeed_url"],
+            "glassdoor_url":  urls["glassdoor_url"],
             "google_url":     urls["google_url"],
         })
 

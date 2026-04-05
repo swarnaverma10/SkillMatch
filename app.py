@@ -119,14 +119,14 @@ html, body { overflow-x: hidden; }
 
 /* ─── FEATURE CARDS ── */
 .feat-card {
-    background: #0f0f1c; border: 1px solid #1a1a2e;
+    background: rgba(15, 15, 28, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 20px; padding: 32px 24px; text-align: center;
-    transition: all 0.25s ease; position: relative; overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden;
 }
 .feat-card:hover {
-    border-color: rgba(108,99,255,0.45);
-    transform: translateY(-5px);
-    box-shadow: 0 20px 60px rgba(108,99,255,0.12);
+    border-color: rgba(108,99,255,0.6);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 24px 60px rgba(108,99,255,0.2);
 }
 .feat-icon-wrap {
     width: 60px; height: 60px; border-radius: 16px; margin: 0 auto 18px;
@@ -152,14 +152,16 @@ html, body { overflow-x: hidden; }
 .page-sub { font-size: 0.88rem; color: #444460; margin-bottom: 32px; }
 
 .card {
-    background: #0f0f1c; border: 1px solid #1a1a2e;
+    background: rgba(15, 15, 28, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 16px; padding: 24px;
-    transition: border-color 0.2s;
+    transition: all 0.3s ease;
 }
+.card:hover { border-color: rgba(108,99,255,0.3); box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
 .metric {
-    background: #0f0f1c; border: 1px solid #1a1a2e;
-    border-radius: 14px; padding: 22px 16px; text-align: center;
+    background: rgba(15, 15, 28, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 14px; padding: 22px 16px; text-align: center; transition: all 0.2s;
 }
+.metric:hover { transform: translateY(-3px); border-color: rgba(108,99,255,0.4); }
 .metric-val   { font-size: 2rem; font-weight: 800; line-height: 1; }
 .metric-label { font-size: 0.68rem; color: #333350; text-transform:uppercase; letter-spacing:1.2px; margin-top:8px; }
 
@@ -193,11 +195,11 @@ html, body { overflow-x: hidden; }
 
 /* ─── JOB CARD ── */
 .job-card {
-    background: #0f0f1c; border: 1px solid #1a1a2e;
+    background: rgba(15, 15, 28, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 16px; padding: 22px 24px; margin: 12px 0;
-    transition: border-color 0.2s, transform 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.job-card:hover { border-color: rgba(108,99,255,0.35); transform: translateY(-2px); }
+.job-card:hover { border-color: rgba(108,99,255,0.5); transform: translateY(-4px); box-shadow: 0 16px 40px rgba(108,99,255,0.15); }
 
 /* ─── APPLY LINKS ── */
 .apply-links { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
@@ -213,6 +215,7 @@ html, body { overflow-x: hidden; }
 .alink-nk  { background:rgba(255,101,132,0.12); border:1px solid rgba(255,101,132,0.30); color:#ff6584 !important; }
 .alink-ind { background:rgba(67,233,123,0.10); border:1px solid rgba(67,233,123,0.28); color:#43e97b !important; }
 .alink-g   { background:rgba(255,180,0,0.10); border:1px solid rgba(255,180,0,0.25); color:#ffb347 !important; }
+.alink-gd  { background:rgba(12, 170, 65,0.10); border:1px solid rgba(12, 170, 65,0.25); color:#0caa41 !important; }
 
 /* ─── BUTTONS ── */
 .stButton > button {
@@ -319,7 +322,12 @@ if p == "home":
                 t = extract_text_from_pdf(up)
                 st.session_state.resume_text = t
                 st.session_state.resume_data = analyze_resume(t)
-            st.success("✅ Resume analyzed! Scroll down to explore features.")
+                
+                # Auto-fetch jobs based on predicted role
+                if 'predicted_role' in st.session_state.resume_data:
+                    st.session_state.jobs = fetch_jobs(st.session_state.resume_data['predicted_role'], "", t)
+                    
+            st.success("✅ Resume analyzed! We've automatically found best-matched jobs for you. Click 'Jobs' to view.")
 
     # Stats
     if st.session_state.resume_text:
@@ -330,7 +338,7 @@ if p == "home":
             (s1, str(d.get('years_experience','0')), "Years Exp.",   "#6c63ff"),
             (s2, str(len(d.get('skills', []))),      "Skills Found", "#43e97b"),
             (s3, (d.get('name','—') or '—')[:16],    "Candidate",    "#ffb347"),
-            (s4, "✅ Ready",                          "Status",       "#ff6584"),
+            (s4, d.get('predicted_role', '—')[:20],  "Predicted Role","#ff6584"),
         ]:
             with col:
                 st.markdown(f"""<div class="stat-chip">
@@ -342,7 +350,7 @@ if p == "home":
     st.markdown("""
     <div style="text-align:center;padding:56px 0 24px;">
         <div style="font-size:1.8rem;font-weight:800;color:#f2f2fc;letter-spacing:-.5px;">Everything You Need</div>
-        <div style="font-size:0.88rem;color:#444460;margin-top:8px;">Three powerful tools. Zero complexity. No sign-up required.</div>
+        <div style="font-size:0.88rem;color:#444460;margin-top:8px;">Three powerful tools. Zero complexity. Auto-matching with Indeed, Naukri & Glassdoor.</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -350,7 +358,7 @@ if p == "home":
     for col, icon, title, desc, tag, pg in [
         (fc1,"📑","Resume Analyzer","AI extracts skills, experience, education & contact info automatically.","Skill Extraction","analyzer"),
         (fc2,"🎯","ATS Score","Paste any JD and get a live keyword match score with gaps & tips.","ATS Matching","ats"),
-        (fc3,"💼","Job Matcher","Role-specific jobs from LinkedIn, Naukri & Indeed — click to apply directly.","Live Job Links","jobs"),
+        (fc3,"💼","Job Matcher","Auto-matches jobs from LinkedIn, Naukri, Indeed & Glassdoor.","Live Job Links","jobs"),
     ]:
         with col:
             st.markdown(f"""<div class="feat-card">
@@ -533,9 +541,11 @@ elif p == "jobs":
     st.markdown("<div class='page-title'>💼 Job Matcher</div>", unsafe_allow_html=True)
     st.markdown("<div class='page-sub'>Role-specific jobs with direct apply links to LinkedIn, Naukri &amp; Indeed</div>", unsafe_allow_html=True)
 
+    default_role = st.session_state.resume_data.get('predicted_role', '') if st.session_state.resume_data else ''
+
     c1, c2 = st.columns(2)
     with c1:
-        role = st.text_input("🔍 Target Role",
+        role = st.text_input("🔍 Target Role", value=default_role,
             placeholder="e.g. ML Engineer, Data Scientist, Full Stack Developer, DevOps...")
     with c2:
         loc = st.text_input("📍 Location (optional)",
@@ -577,6 +587,7 @@ elif p == "jobs":
             li_url  = job.get("linkedin_url", "#")
             nk_url  = job.get("naukri_url",   "#")
             ind_url = job.get("indeed_url",   "#")
+            gd_url  = job.get("glassdoor_url", "#")
             g_url   = job.get("google_url",   "#")
 
             # Source tag color
@@ -588,7 +599,7 @@ elif p == "jobs":
             }
             s_bg, s_bd, s_tc = src_colors.get(src, ("rgba(108,99,255,0.10)","rgba(108,99,255,0.25)","#a89fff"))
 
-            st.markdown(f"""<div class="job-card">
+            job_html = f"""<div class="job-card">
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;">
 
                     <div style="flex:1;min-width:0;">
@@ -615,11 +626,12 @@ elif p == "jobs":
                         <!-- Skill badges -->
                         <div style="margin-bottom:14px;">{badges}</div>
 
-                        <!-- Apply links — all 4 platforms -->
+                        <!-- Apply links — all 5 platforms -->
                         <div class="apply-links">
                             <a href="{li_url}"  target="_blank" class="alink alink-li">🔗 LinkedIn</a>
                             <a href="{nk_url}"  target="_blank" class="alink alink-nk">🔗 Naukri</a>
                             <a href="{ind_url}" target="_blank" class="alink alink-ind">🔗 Indeed</a>
+                            <a href="{gd_url}"  target="_blank" class="alink alink-gd">🔗 Glassdoor</a>
                             <a href="{g_url}"   target="_blank" class="alink alink-g">🔍 Google</a>
                         </div>
                     </div>
@@ -635,7 +647,9 @@ elif p == "jobs":
                         </div>
                     </div>
                 </div>
-            </div>""", unsafe_allow_html=True)
+            </div>"""
+            flat_html = "".join([line.strip() for line in job_html.split('\n')])
+            st.markdown(flat_html, unsafe_allow_html=True)
 
     elif not st.session_state.jobs:
         st.markdown("""<div class="card" style="text-align:center;padding:60px;">

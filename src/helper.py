@@ -22,6 +22,24 @@ EDUCATION_KEYWORDS = ["b.tech","m.tech","btech","mtech","b.e","m.e","bca","mca",
                        "bachelor","master","degree","engineering","computer science","information technology",
                        "b.com","b.a","diploma","12th","10th","hsc","ssc","pgdm"]
 
+ROLE_KEYWORDS = {
+    "Data Scientist": ["machine learning","deep learning","nlp","tensorflow","pytorch","pandas","data science","statistics"],
+    "ML Engineer": ["machine learning","tensorflow","pytorch","keras","mlops","model","computer vision","llm"],
+    "Full Stack Developer": ["react","node.js","django","flask","fastapi","mongodb","express","full stack"],
+    "Software Engineer": ["java","c++","python","golang","c#","software engineering","data structures"],
+    "Python Developer": ["python","django","flask","fastapi","celery"],
+    "Frontend Developer": ["react","angular","vue","html","css","javascript","typescript","frontend"],
+    "DevOps Engineer": ["aws","azure","gcp","docker","kubernetes","ci/cd","terraform","ansible","jenkins"],
+    "Data Analyst": ["sql","excel","tableau","power bi","data analysis","statistics"],
+    "Backend Developer": ["java","python","node.js","go","sql","mongodb","redis","kafka","backend","rest api"],
+    "Android Developer": ["android","kotlin","java","android studio","jetpack compose"],
+    "iOS Developer": ["ios","swift","objective-c","xcode"],
+    "UI UX Designer": ["figma","adobe xd","sketch","ui/ux","user interface","wireframe"],
+    "Product Manager": ["product management","agile","scrum","jira","roadmap"],
+    "Cloud Engineer": ["aws","azure","gcp","cloud","terraform","docker","kubernetes"],
+    "Cybersecurity Engineer": ["security","penetration testing","kalilinux","firewall","cybersecurity","network"],
+    "QA Engineer": ["selenium","appium","testing","qa","quality assurance","test automation"],
+}
 
 def extract_text_from_pdf(uploaded_file) -> str:
     try:
@@ -80,8 +98,15 @@ def analyze_resume(text: str) -> dict:
             if kw in ll:
                 education = line.strip()[:60]
                 break
-        if education:
-            break
+    # Predict role based on max matching skills
+    predicted_role = "Software Engineer"
+    max_matches = 0
+    skills_lower = [s.lower() for s in found_skills]
+    for role, kw in ROLE_KEYWORDS.items():
+        matches = sum(1 for k in kw if k in lower or k in skills_lower)
+        if matches > max_matches:
+            max_matches = matches
+            predicted_role = role
 
     return {
         "name": name or "Candidate",
@@ -90,4 +115,5 @@ def analyze_resume(text: str) -> dict:
         "skills": found_skills,
         "years_experience": years if years else "N/A",
         "education": education or "Not detected",
+        "predicted_role": predicted_role,
     }
